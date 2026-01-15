@@ -33,9 +33,15 @@ export class UsersService {
         email: true,
         firstName: true,
         lastName: true,
+        phone: true,
+        gender: true,
         role: true,
         createdAt: true,
-        sellerProfile: true
+        sellerProfile: true,
+        addresses: {
+          where: { isDefault: true },
+          take: 1
+        }
       }
     });
 
@@ -57,6 +63,8 @@ export class UsersService {
     if (data.firstName) userUpdateData.firstName = data.firstName;
     if (data.lastName) userUpdateData.lastName = data.lastName;
     if (data.email) userUpdateData.email = data.email;
+    if (data.phone !== undefined) userUpdateData.phone = data.phone;
+    if (data.gender !== undefined) userUpdateData.gender = data.gender;
     if (data.role) userUpdateData.role = data.role as Role;
     if (data.status) userUpdateData.status = data.status as UserStatus;
 

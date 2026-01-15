@@ -11,6 +11,7 @@ import {
   CircleDollarSign
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import { couponsApi, type Coupon, CouponType } from '../../api/coupons';
 
 const Promotions: React.FC = () => {
@@ -33,14 +34,51 @@ const Promotions: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this promotion?')) {
-      try {
-        await couponsApi.delete(id);
-        setCoupons(prev => prev.filter(c => c.id !== id));
-      } catch (error: any) {
-        alert(error.response?.data?.message || 'Failed to delete coupon');
+  const handleDelete = async (id: string, code: string) => {
+    const result = await Swal.fire({
+      title: 'Delete Promotion?',
+      text: `Are you sure you want to delete coupon code "${code}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete it!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#71717a',
+      background: '#ffffff',
+      customClass: {
+        popup: 'rounded-[32px] overflow-hidden border-none shadow-2xl',
+        confirmButton: 'rounded-xl font-bold px-8 py-3',
+        cancelButton: 'rounded-xl font-bold px-8 py-3'
       }
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await couponsApi.delete(id);
+      setCoupons(prev => prev.filter(c => c.id !== id));
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Promotion has been removed.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#ffffff',
+        customClass: {
+          popup: 'rounded-[32px]'
+        }
+      });
+    } catch (error: any) {
+      Swal.fire({
+        title: 'Error!',
+        text: error.response?.data?.message || 'Delete failed',
+        icon: 'error',
+        confirmButtonColor: '#000000',
+        customClass: {
+          popup: 'rounded-[32px]',
+          confirmButton: 'rounded-xl font-bold px-8 py-3'
+        }
+      });
     }
   };
 
@@ -201,7 +239,7 @@ const Promotions: React.FC = () => {
                           <Edit className="w-4 h-4" />
                         </Link>
                         <button
-                          onClick={() => handleDelete(coupon.id)}
+                          onClick={() => handleDelete(coupon.id, coupon.code)}
                           className="p-2 hover:bg-white rounded-lg text-gray-400 hover:text-red-500 transition-all border border-transparent hover:border-gray-100"
                         >
                           <Trash2 className="w-4 h-4" />

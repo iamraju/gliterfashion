@@ -85,7 +85,10 @@ export class ProductsController {
 
       // 6. Handle images from req.files and combined metadata
       let images = [];
-      if (typeof bodyData.images === 'string') {
+      if (typeof bodyData.existingImages === 'string') {
+          images = JSON.parse(bodyData.existingImages);
+      } else if (typeof bodyData.images === 'string') {
+          // Backward compatibility
           images = JSON.parse(bodyData.images);
       }
       
@@ -135,10 +138,21 @@ export class ProductsController {
 
       const bodyData = { ...req.body };
       
-      // Parse numeric fields
+      // Parse numeric fields from multipart body
       if (bodyData.basePrice) bodyData.basePrice = parseFloat(bodyData.basePrice);
       if (bodyData.salePrice) bodyData.salePrice = parseFloat(bodyData.salePrice);
-      if (bodyData.weight) bodyData.weight = parseFloat(bodyData.weight);
+      
+      // Handle weight: allow empty string to be null
+      if (bodyData.weight === '' || bodyData.weight === null || bodyData.weight === undefined || bodyData.weight === 'null') {
+        bodyData.weight = null;
+      } else {
+        bodyData.weight = parseFloat(bodyData.weight);
+      }
+
+      // Handle boolean strings
+      if (bodyData.isFeatured !== undefined) {
+        bodyData.isFeatured = bodyData.isFeatured === 'true' || bodyData.isFeatured === true;
+      }
 
       // Handle variants if sent as JSON string
       if (typeof bodyData.variants === 'string') {
@@ -152,7 +166,10 @@ export class ProductsController {
 
       // Handle images if any
       let images = [];
-      if (typeof bodyData.images === 'string') {
+      if (typeof bodyData.existingImages === 'string') {
+          images = JSON.parse(bodyData.existingImages);
+      } else if (typeof bodyData.images === 'string') {
+          // Backward compatibility
           images = JSON.parse(bodyData.images);
       }
 
@@ -171,6 +188,13 @@ export class ProductsController {
         });
         images = [...images, ...newImages];
       }
+      
+      // Ensure we don't save full URLs to the database
+      images = images.map((img: any) => ({
+          ...img,
+          imageUrl: img.imageUrl ? img.imageUrl.split('/').pop() : img.imageUrl
+      }));
+      
       bodyData.images = images;
 
       const data = updateProductSchema.parse(bodyData);
@@ -178,7 +202,11 @@ export class ProductsController {
       res.json(formatProductWithImages(req, product));
     } catch (error: any) {
       if (error.constructor.name === 'ZodError') {
-        res.status(400).json({ error: 'Validation Error', details: error.errors });
+        const formattedErrors = error.errors.map((err: any) => ({
+            path: err.path.join('.'),
+            message: err.message
+         }));
+        res.status(400).json({ error: 'Validation Error', details: formattedErrors });
         return;
       }
       if (error.message === 'Product not found') {

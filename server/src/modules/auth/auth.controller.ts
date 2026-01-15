@@ -9,8 +9,8 @@ export class AuthController {
   async register(req: Request, res: Response) {
     try {
       const data = registerSchema.parse(req.body);
-      const user = await authService.register(data);
-      res.status(201).json(user);
+      const result = await authService.register(data);
+      res.status(201).json(result);
     } catch (error: any) {
       if (error.constructor.name === 'ZodError') {
          res.status(400).json({ error: error.errors });

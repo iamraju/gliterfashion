@@ -21,6 +21,13 @@ import OrdersPage from './pages/dashboard/Orders';
 import OrderDetails from './pages/dashboard/OrderDetails';
 import CustomersPage from './pages/dashboard/Customers';
 import CustomerDetails from './pages/dashboard/CustomerDetails';
+import Brands from './pages/dashboard/Brands';
+import BrandForm from './pages/dashboard/BrandForm';
+import ShippingMethods from './pages/dashboard/settings/ShippingMethods';
+import ShippingMethodForm from './pages/dashboard/settings/ShippingMethodForm';
+import PaymentMethods from './pages/dashboard/settings/PaymentMethods';
+import PaymentMethodForm from './pages/dashboard/settings/PaymentMethodForm';
+import Settings from './pages/dashboard/Settings';
 
 function App() {
   return (
@@ -58,7 +65,18 @@ function App() {
               <Route path="orders/:id" element={<OrderDetails />} />
               <Route path="customers" element={<CustomersPage />} />
               <Route path="customers/:id" element={<CustomerDetails />} />
-              <Route path="settings" element={<div className="p-8"><h2 className="text-2xl font-bold">Settings Page</h2><p className="mt-4 text-gray-500">Feature coming soon...</p></div>} />
+              <Route path="brands" element={<Brands />} />
+              <Route path="brands/new" element={<BrandForm />} />
+              <Route path="brands/:id" element={<BrandForm />} />
+              <Route path="settings">
+                <Route index element={<Settings />} />
+                <Route path="shipping-methods" element={<ShippingMethods />} />
+                <Route path="shipping-methods/new" element={<ShippingMethodForm />} />
+                <Route path="shipping-methods/:id" element={<ShippingMethodForm />} />
+                <Route path="payment-methods" element={<PaymentMethods />} />
+                <Route path="payment-methods/new" element={<PaymentMethodForm />} />
+                <Route path="payment-methods/:id" element={<PaymentMethodForm />} />
+              </Route>
             </Route>
           </Route>
 

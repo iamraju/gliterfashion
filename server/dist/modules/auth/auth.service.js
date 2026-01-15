@@ -43,7 +43,17 @@ class AuthService {
             }
             return user;
         });
-        return { id: result.id, email: result.email, role: result.role };
+        const token = jsonwebtoken_1.default.sign({ userId: result.id, role: result.role, email: result.email }, JWT_SECRET, { expiresIn: '1d' });
+        return {
+            token,
+            user: {
+                id: result.id,
+                email: result.email,
+                role: result.role,
+                firstName: result.firstName,
+                lastName: result.lastName
+            }
+        };
     }
     async login(data) {
         const user = await client_1.default.user.findUnique({ where: { email: data.email } });

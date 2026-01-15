@@ -63,6 +63,7 @@ class ProductsService {
             const product = await tx.product.create({
                 data: {
                     sellerId: data.sellerId || null,
+                    brandId: data.brandId || null,
                     categoryId: data.categoryId,
                     name: data.name,
                     slug: data.slug,
@@ -136,6 +137,10 @@ class ProductsService {
         const updateData = {};
         if (data.categoryId)
             updateData.categoryId = data.categoryId;
+        if (data.brandId !== undefined)
+            updateData.brandId = data.brandId;
+        if (data.isFeatured !== undefined)
+            updateData.isFeatured = data.isFeatured;
         if (data.name)
             updateData.name = data.name;
         if (data.slug)

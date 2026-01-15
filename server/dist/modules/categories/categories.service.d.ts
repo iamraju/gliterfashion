@@ -14,6 +14,8 @@ export declare class CategoriesService {
             parentId: string | null;
             imageUrl: string | null;
             isActive: boolean;
+            showInNavBar: boolean;
+            showInHomePage: boolean;
             sortOrder: number;
             gender: import(".prisma/client").$Enums.CategoryGender | null;
         } | null;
@@ -27,6 +29,8 @@ export declare class CategoriesService {
             parentId: string | null;
             imageUrl: string | null;
             isActive: boolean;
+            showInNavBar: boolean;
+            showInHomePage: boolean;
             sortOrder: number;
             gender: import(".prisma/client").$Enums.CategoryGender | null;
         }[];
@@ -40,6 +44,8 @@ export declare class CategoriesService {
         parentId: string | null;
         imageUrl: string | null;
         isActive: boolean;
+        showInNavBar: boolean;
+        showInHomePage: boolean;
         sortOrder: number;
         gender: import(".prisma/client").$Enums.CategoryGender | null;
     }>;
@@ -53,6 +59,8 @@ export declare class CategoriesService {
         parentId: string | null;
         imageUrl: string | null;
         isActive: boolean;
+        showInNavBar: boolean;
+        showInHomePage: boolean;
         sortOrder: number;
         gender: import(".prisma/client").$Enums.CategoryGender | null;
     }>;
@@ -66,6 +74,8 @@ export declare class CategoriesService {
         parentId: string | null;
         imageUrl: string | null;
         isActive: boolean;
+        showInNavBar: boolean;
+        showInHomePage: boolean;
         sortOrder: number;
         gender: import(".prisma/client").$Enums.CategoryGender | null;
     }>;

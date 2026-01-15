@@ -27,15 +27,26 @@ const attributes_routes_1 = __importDefault(require("./modules/attributes/attrib
 const products_routes_1 = __importDefault(require("./modules/products/products.routes"));
 const coupons_routes_1 = __importDefault(require("./modules/coupons/coupons.routes"));
 const orders_routes_1 = __importDefault(require("./modules/orders/orders.routes"));
+const store_routes_1 = __importDefault(require("./modules/store/store.routes"));
+const brands_routes_1 = __importDefault(require("./modules/brands/brands.routes"));
 const reviews_routes_1 = __importDefault(require("./modules/reviews/reviews.routes"));
+const cart_routes_1 = __importDefault(require("./modules/cart/cart.routes"));
+const checkout_routes_1 = __importDefault(require("./modules/checkout/checkout.routes"));
+const user_store_routes_1 = __importDefault(require("./modules/users/user_store.routes"));
 app.use('/api/backoffice/auth', auth_routes_1.default);
+app.use('/api/store/auth', auth_routes_1.default);
 app.use('/api/backoffice/seller', seller_routes_1.default);
 app.use('/api/backoffice/users', users_routes_1.default);
+app.use('/api/store/users', user_store_routes_1.default);
 app.use('/api/backoffice/categories', categories_routes_1.default);
 app.use('/api/backoffice/attributes', attributes_routes_1.default);
 app.use('/api/backoffice/products', products_routes_1.default);
 app.use('/api/backoffice/coupons', coupons_routes_1.default);
 app.use('/api/backoffice/orders', orders_routes_1.default);
+app.use('/api/store/cart', cart_routes_1.default);
+app.use('/api/store/checkout', checkout_routes_1.default);
+app.use('/api/store', store_routes_1.default);
+app.use('/api/backoffice/brands', brands_routes_1.default);
 app.use('/api/backoffice/reviews', reviews_routes_1.default);
 // Basic Route
 app.get("/", (req, res) => {

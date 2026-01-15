@@ -41,9 +41,32 @@ export const formatProductWithImages = (req: Request, product: any) => {
     category: formatCategoryWithImage(req, product.category),
     variants: product.variants?.map((v: any) => ({
       ...v,
-      attributes: v.productVariantAttribute || []
+      attributes: v.productVariantAttribute || v.attributes || []
     }))
   };
 
   return formatted;
+};
+
+export const formatBrandWithLogo = (req: Request, brand: any) => {
+  if (!brand) return brand;
+  return {
+    ...brand,
+    logoUrl: getFullImageUrl(req, brand.logoUrl)
+  };
+};
+
+export const formatCartWithImages = (req: Request, cart: any) => {
+  if (!cart) return cart;
+
+  return {
+    ...cart,
+    items: cart.items?.map((item: any) => ({
+      ...item,
+      variant: item.variant ? {
+        ...item.variant,
+        product: formatProductWithImages(req, item.variant.product)
+      } : null
+    }))
+  };
 };

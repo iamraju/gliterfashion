@@ -4,6 +4,7 @@ import { ProductStatus } from '@prisma/client';
 
 export const createProductSchema = z.object({
   sellerId: z.string().uuid().optional().nullable(),
+  brandId: z.string().uuid().optional().nullable(),
   categoryId: z.string().uuid(),
   name: z.string().min(1),
   slug: z.string().min(1),
@@ -13,6 +14,7 @@ export const createProductSchema = z.object({
   salePrice: z.number().min(0).optional().nullable(),
   sku: z.string().min(1),
   weight: z.number().min(0).optional().nullable(),
+  isFeatured: z.boolean().optional(),
   
   // Variants (Optional initial creation? Usually yes)
   variants: z.array(z.object({
@@ -37,6 +39,7 @@ export const createProductSchema = z.object({
 });
 
 export const updateProductSchema = z.object({
+  brandId: z.string().uuid().optional().nullable(),
   categoryId: z.string().uuid().optional(),
   name: z.string().min(1).optional(),
   slug: z.string().min(1).optional(),
@@ -46,6 +49,7 @@ export const updateProductSchema = z.object({
   sku: z.string().min(1).optional(),
   status: z.nativeEnum(ProductStatus).optional(),
   weight: z.number().min(0).optional().nullable(),
+  isFeatured: z.boolean().optional(),
   variants: z.array(z.object({
       sku: z.string().min(1),
       price: z.number().min(0),

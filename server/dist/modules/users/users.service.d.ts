@@ -29,6 +29,22 @@ export declare class UsersService {
         role: import(".prisma/client").$Enums.Role;
         id: string;
         createdAt: Date;
+        addresses: {
+            type: import(".prisma/client").$Enums.AddressType;
+            city: string;
+            state: string;
+            country: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string | null;
+            fullName: string;
+            phone: string;
+            addressLine1: string;
+            addressLine2: string | null;
+            postalCode: string;
+            isDefault: boolean;
+        }[];
         sellerProfile: {
             companyName: string | null;
             streetAddress: string | null;

@@ -20,6 +20,8 @@ export const updateUserSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
   email: z.string().email().optional(),
+  phone: z.string().nullable().optional(),
+  gender: z.string().nullable().optional(),
   role: z.enum(['SUPER_ADMIN', 'SELLER', 'CUSTOMER']).optional(),
   status: z.enum(['ACTIVE', 'SUSPENDED', 'DEACTIVATED']).optional(),
   // Seller specific fields
@@ -33,6 +35,8 @@ export const updateProfileSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
   email: z.string().email().optional(),
+  phone: z.string().nullable().optional(),
+  gender: z.string().nullable().optional(),
 });
 
 export const changePasswordSchema = z.object({

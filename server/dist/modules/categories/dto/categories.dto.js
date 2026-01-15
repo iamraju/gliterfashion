@@ -17,6 +17,24 @@ exports.createCategorySchema = zod_1.z.object({
         }
         return val;
     }, zod_1.z.boolean().optional()),
+    showInNavBar: zod_1.z.preprocess((val) => {
+        if (typeof val === 'string') {
+            if (val === 'true')
+                return true;
+            if (val === 'false')
+                return false;
+        }
+        return val;
+    }, zod_1.z.boolean().optional()),
+    showInHomePage: zod_1.z.preprocess((val) => {
+        if (typeof val === 'string') {
+            if (val === 'true')
+                return true;
+            if (val === 'false')
+                return false;
+        }
+        return val;
+    }, zod_1.z.boolean().optional()),
     sortOrder: zod_1.z.preprocess((val) => {
         if (val === '' || val === null)
             return undefined;
@@ -33,6 +51,24 @@ exports.updateCategorySchema = zod_1.z.object({
     parentId: zod_1.z.string().uuid().optional().or(zod_1.z.literal('')).transform(val => val === '' ? null : val).nullable(),
     imageUrl: zod_1.z.string().optional(),
     isActive: zod_1.z.preprocess((val) => {
+        if (typeof val === 'string') {
+            if (val === 'true')
+                return true;
+            if (val === 'false')
+                return false;
+        }
+        return val;
+    }, zod_1.z.boolean().optional()),
+    showInNavBar: zod_1.z.preprocess((val) => {
+        if (typeof val === 'string') {
+            if (val === 'true')
+                return true;
+            if (val === 'false')
+                return false;
+        }
+        return val;
+    }, zod_1.z.boolean().optional()),
+    showInHomePage: zod_1.z.preprocess((val) => {
         if (typeof val === 'string') {
             if (val === 'true')
                 return true;

@@ -20,6 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { categoriesApi, type Category } from '../../api/categories';
 import Input from '../../components/ui/Input';
+import Swal from 'sweetalert2';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -27,6 +28,8 @@ const categorySchema = z.object({
   parentId: z.string().uuid('Invalid parent category').optional().or(z.string().length(0)),
   imageUrl: z.string().optional().or(z.string().length(0)),
   isActive: z.boolean(),
+  showInNavBar: z.boolean(),
+  showInHomePage: z.boolean(),
   sortOrder: z.number().int(),
   gender: z.enum(['MEN', 'WOMEN', 'UNISEX']).nullable().optional(),
 });
@@ -46,7 +49,6 @@ const CategoriesPage: React.FC = () => {
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -60,6 +62,8 @@ const CategoriesPage: React.FC = () => {
     resolver: zodResolver(categorySchema),
     defaultValues: {
       isActive: true,
+      showInNavBar: false,
+      showInHomePage: false,
       sortOrder: 0,
       gender: null,
     },
@@ -94,6 +98,8 @@ const CategoriesPage: React.FC = () => {
         parentId: category.parentId || '',
         imageUrl: category.imageUrl || '',
         isActive: category.isActive,
+        showInNavBar: category.showInNavBar,
+        showInHomePage: category.showInHomePage,
         sortOrder: category.sortOrder,
         gender: category.gender,
       });
@@ -106,6 +112,8 @@ const CategoriesPage: React.FC = () => {
         parentId: '',
         imageUrl: '',
         isActive: true,
+        showInNavBar: false,
+        showInHomePage: false,
         sortOrder: 0,
         gender: null,
       });
@@ -145,6 +153,8 @@ const CategoriesPage: React.FC = () => {
       if (data.parentId) formData.append('parentId', data.parentId);
       // Convert boolean to actual boolean value
       formData.append('isActive', data.isActive ? 'true' : 'false');
+      formData.append('showInNavBar', data.showInNavBar ? 'true' : 'false');
+      formData.append('showInHomePage', data.showInHomePage ? 'true' : 'false');
       // Convert number to string but ensure it's a valid number
       formData.append('sortOrder', data.sortOrder.toString());
       if (data.gender) formData.append('gender', data.gender);
@@ -180,13 +190,51 @@ const CategoriesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Delete Category?',
+      text: `Are you sure you want to delete "${name}"? Ensure it has no products or sub-categories assigned.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete it!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#71717a',
+      background: '#ffffff',
+      customClass: {
+        popup: 'rounded-[32px] overflow-hidden border-none shadow-2xl',
+        confirmButton: 'rounded-xl font-bold px-8 py-3',
+        cancelButton: 'rounded-xl font-bold px-8 py-3'
+      }
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await categoriesApi.delete(id);
-      setIsDeleting(null);
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Category has been removed.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#ffffff',
+        customClass: {
+          popup: 'rounded-[32px]'
+        }
+      });
       fetchCategories();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Delete failed');
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.message || 'Delete failed',
+        icon: 'error',
+        confirmButtonColor: '#000000',
+        customClass: {
+          popup: 'rounded-[32px]',
+          confirmButton: 'rounded-xl font-bold px-8 py-3'
+        }
+      });
     }
   };
 
@@ -346,7 +394,7 @@ const CategoriesPage: React.FC = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsDeleting(category.id);
+                  handleDelete(category.id, category.name);
                 }}
                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                 title="Delete Category"
@@ -560,7 +608,7 @@ const CategoriesPage: React.FC = () => {
                     />
                   </div>
 
-                  <div className="sm:col-span-2 pt-2">
+                   <div className="sm:col-span-2 pt-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="flex items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
                       <input
                         type="checkbox"
@@ -570,16 +618,38 @@ const CategoriesPage: React.FC = () => {
                       />
                       <div className="ml-3">
                         <label htmlFor="isActive" className="text-sm font-medium text-gray-900 cursor-pointer">
-                          Active Status
+                          Active
                         </label>
-                        <p className="text-xs text-gray-500">
-                          If unchecked, this category will be hidden from the storefront.
-                        </p>
                       </div>
                     </div>
-                     {fieldErrors.isActive && (
-                        <p className="text-xs text-red-600 ml-1 mt-1">{fieldErrors.isActive}</p>
-                      )}
+
+                    <div className="flex items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
+                      <input
+                        type="checkbox"
+                        id="showInNavBar"
+                        {...register('showInNavBar')}
+                        className="w-5 h-5 text-brand-primary border-gray-300 rounded focus:ring-brand-primary cursor-pointer"
+                      />
+                      <div className="ml-3">
+                        <label htmlFor="showInNavBar" className="text-sm font-medium text-gray-900 cursor-pointer">
+                          Navbar
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
+                      <input
+                        type="checkbox"
+                        id="showInHomePage"
+                        {...register('showInHomePage')}
+                        className="w-5 h-5 text-brand-primary border-gray-300 rounded focus:ring-brand-primary cursor-pointer"
+                      />
+                      <div className="ml-3">
+                        <label htmlFor="showInHomePage" className="text-sm font-medium text-gray-900 cursor-pointer">
+                          Homepage
+                        </label>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="sm:col-span-1">
@@ -621,37 +691,6 @@ const CategoriesPage: React.FC = () => {
         </div>
       )}
 
-      {/* Delete Confirmation */}
-      {isDeleting && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setIsDeleting(null)} />
-          <div className="bg-white rounded-3xl w-full max-sm shadow-2xl z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Are you sure?</h3>
-              <p className="text-gray-500 text-sm">
-                This will delete the category. Make sure it has no products or sub-categories assigned.
-              </p>
-            </div>
-            <div className="p-6 bg-gray-50 flex items-center space-x-3">
-              <button
-                onClick={() => setIsDeleting(null)}
-                className="flex-1 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(isDeleting)}
-                className="flex-1 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-100 transition-all"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="fixed bottom-8 right-8 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 animate-in slide-in-from-right duration-300">

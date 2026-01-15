@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { productsApi } from '../../api/products';
 import { categoriesApi, type Category } from '../../api/categories';
+import { brandsApi, type Brand } from '../../api/brands';
 import { attributesApi, type Attribute } from '../../api/attributes';
 import Input from '../../components/ui/Input';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -40,10 +41,12 @@ const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   categoryId: z.string().min(1, 'Category is required'),
+  brandId: z.string().optional().nullable(),
   basePrice: z.number().min(0, 'Price must be positive'),
   salePrice: z.number().min(0, 'Sale price must be positive').optional().nullable(),
   sku: z.string().min(1, 'SKU is required'),
   status: z.enum(['DRAFT', 'ACTIVE', 'OUT_OF_STOCK', 'DISCONTINUED']),
+  isFeatured: z.boolean().optional(),
   hasVariants: z.boolean(),
   variants: z.array(variantSchema).optional(),
 });
@@ -59,6 +62,7 @@ const ProductForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [availableAttributes, setAvailableAttributes] = useState<Attribute[]>([]);
   const [backendVariantError, setBackendVariantError] = useState<string | null>(null);
   
@@ -102,11 +106,13 @@ const ProductForm: React.FC = () => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [catsData, attrsData] = await Promise.all([
+        const [catsData, brandsData, attrsData] = await Promise.all([
           categoriesApi.getAll(),
+          brandsApi.getAll(),
           attributesApi.getAll(),
         ]);
         setCategories(catsData);
+        setBrands(brandsData);
         setAvailableAttributes(attrsData);
 
         if (isEditMode && id) {
@@ -115,10 +121,12 @@ const ProductForm: React.FC = () => {
           setValue('name', product.name);
           setValue('description', product.description || '');
           setValue('categoryId', product.categoryId);
+          setValue('brandId', product.brandId || '');
           setValue('basePrice', Number(product.basePrice));
           setValue('salePrice', product.salePrice ? Number(product.salePrice) : null);
           setValue('sku', product.sku);
           setValue('status', product.status);
+          setValue('isFeatured', product.isFeatured || false);
           
           if (product.images) {
             setExistingImages(product.images.map((img: any) => ({
@@ -174,6 +182,17 @@ const ProductForm: React.FC = () => {
     };
     loadData();
   }, [id, isEditMode, setValue]);
+
+  // Handle automatic variant generation
+  useEffect(() => {
+    if (hasVariants && selectedAttributeIds.length > 0) {
+      // Check if all selected attributes have values
+      const allHaveValues = selectedAttributeIds.every(id => selectedValues[id] && selectedValues[id].length > 0);
+      if (allHaveValues) {
+        generateVariants();
+      }
+    }
+  }, [selectedAttributeIds, selectedValues, hasVariants]);
 
   // Image Upload Handlers
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -294,7 +313,6 @@ const ProductForm: React.FC = () => {
     }
 
     // Prepare arrays of values for Cartesian product
-    // We store object { attrId, valueId, attrName, valueName }
     const valueArrays = attrs.map(attr => {
       const selectedForThis = selectedValues[attr.id] || [];
       return selectedForThis.map(vId => {
@@ -332,7 +350,7 @@ const ProductForm: React.FC = () => {
       if (existingVariant) {
         return {
           ...existingVariant,
-          attributes: combo // Ensure readable names are updated if needed
+          attributes: combo 
         };
       }
 
@@ -349,6 +367,21 @@ const ProductForm: React.FC = () => {
     replaceVariants(newVariants);
   };
 
+  const isTableOutOfSync = () => {
+    if (!hasVariants || selectedAttributeIds.length === 0) return false;
+    
+    // Check if any selected attribute has no values
+    const anyEmpty = selectedAttributeIds.some(id => !selectedValues[id] || selectedValues[id].length === 0);
+    if (anyEmpty) return true;
+
+    // Calculate expected number of combinations
+    const combinationCount = selectedAttributeIds.reduce((acc, id) => {
+        return acc * (selectedValues[id]?.length || 0);
+    }, 1);
+
+    return variantFields.length !== combinationCount;
+  };
+
   const onSubmit = async (data: ProductFormValues, saveAndClose = false) => {
     setIsSubmitting(true);
     setError(null);
@@ -357,10 +390,12 @@ const ProductForm: React.FC = () => {
         name: data.name,
         description: data.description,
         categoryId: data.categoryId,
+        brandId: data.brandId || null,
         basePrice: data.basePrice,
         salePrice: data.salePrice,
         sku: data.sku,
         status: data.status,
+        isFeatured: data.isFeatured,
       };
 
       if (data.hasVariants && data.variants) {
@@ -404,32 +439,33 @@ const ProductForm: React.FC = () => {
           isPrimary: img.isPrimary,
           attributeValueId: img.attributeValueId
       }));
-      formData.append('images', JSON.stringify(imagesPayload));
+      formData.append('existingImages', JSON.stringify(imagesPayload));
 
        if (isEditMode && id) {
         await productsApi.update(id, formData);
         if (saveAndClose) {
           navigate('/products');
         } else {
-          // If we stay on page, we might want to refresh data or just show success
           setError(null);
-          // Optional: re-load data or show a success toast
         }
       } else {
         const product = await productsApi.create(formData);
         if (saveAndClose) {
           navigate('/products');
         } else {
-          // If it was a create and we stay, we should navigate to the edit page of the new product
           navigate(`/products/edit/${product.id}`);
         }
       }
     } catch (err: any) {
       console.error(err);
-      const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to save product';
+      const data = err.response?.data;
+      let errorMessage = data?.message || data?.error || 'Failed to save product';
       
-      // If error is variant related, set specific variant error and a generic top-level error
-      if (errorMessage.includes('barcode') || errorMessage.includes('SKU') || errorMessage.includes('variant')) {
+      if (data?.error === 'Validation Error' && Array.isArray(data.details)) {
+        errorMessage = 'Validation Error: ' + data.details.map((d: any) => `${d.path}: ${d.message}`).join(', ');
+      }
+      
+      if (errorMessage.toLowerCase().includes('barcode') || errorMessage.toLowerCase().includes('sku') || errorMessage.toLowerCase().includes('variant')) {
         setBackendVariantError(errorMessage);
         setError('There are errors while saving the product');
       } else {
@@ -521,6 +557,23 @@ const ProductForm: React.FC = () => {
               error={errors.name?.message}
             />
 
+            <div>
+               <label className="block text-sm font-medium text-gray-700 mb-1">
+                 Brand
+               </label>
+               <select
+                 {...register('brandId')}
+                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-gray-900"
+               >
+                 <option value="">No Brand</option>
+                 {brands.map(brand => (
+                   <option key={brand.id} value={brand.id}>
+                     {brand.name}
+                   </option>
+                 ))}
+               </select>
+            </div>
+
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-700 ml-1">
                 Description
@@ -539,22 +592,8 @@ const ProductForm: React.FC = () => {
                           }}
                           config={{
                             toolbar: [
-                              'heading',
-                              '|',
-                              'bold',
-                              'italic',
-                              'link',
-                              'bulletedList',
-                              'numberedList',
-                              '|',
-                              'outdent',
-                              'indent',
-                              '|',
-                              'blockQuote',
-                              'insertTable',
-                              'mediaEmbed',
-                              'undo',
-                              'redo'
+                              'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                              'outdent', 'indent', '|', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'
                             ]
                           }}
                       />
@@ -694,7 +733,7 @@ const ProductForm: React.FC = () => {
 
                {hasVariants && (
                  <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-300">
-                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
                         {/* Attribute & Value Selection */}
                         <div className="md:col-span-3 space-y-6">
                             {/* Attribute Selection */}
@@ -772,40 +811,51 @@ const ProductForm: React.FC = () => {
                                 type="button"
                                 onClick={generateVariants}
                                 disabled={selectedAttributeIds.length === 0}
-                                className="w-full inline-flex items-center justify-center px-4 py-3 bg-brand-primary text-white text-sm font-bold rounded-xl hover:bg-brand-secondary transition-all shadow-lg shadow-brand-primary/20 active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group"
+                                className={`w-full inline-flex items-center justify-center px-4 py-3 text-sm font-bold rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group ${
+                                    isTableOutOfSync() 
+                                    ? 'bg-amber-500 text-white shadow-amber-500/20 animate-pulse' 
+                                    : 'bg-brand-primary text-white shadow-brand-primary/20 hover:bg-brand-secondary'
+                                }`}
                             >
                                 <RefreshCw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
                                 Populate Table
                             </button>
-                            {selectedAttributeIds.length > 0 && (
-                                <div className="inline-flex items-center text-[10px] font-bold text-brand-primary uppercase tracking-widest bg-white px-3 py-1 rounded-full border border-brand-primary/10">
-                                    Changes Detected
-                                </div>
-                            )}
                         </div>
-                     </div>
+                      </div>
 
-                   {/* Variants Table Header */}
-                   {variantFields.length > 0 && (
-                     <div className="border-t border-gray-100 pt-6">
-                        <label className="block text-sm font-bold text-gray-700 flex items-center mb-4">
-                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-primary/10 text-brand-primary text-[10px] mr-2">3</span>
-                            Manage Variants ({variantFields.length})
-                        </label>
-
-                         {/* Variant Specific Errors */}
-                         {backendVariantError ? (
-                           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                             <div className="p-2 bg-red-100 rounded-xl">
-                               <X className="w-4 h-4 text-red-600" />
-                             </div>
+                    {isTableOutOfSync() && (
+                        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-start space-x-3 animate-in fade-in slide-in-from-top-2">
+                             <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                              <div>
-                               <p className="text-sm font-bold text-red-900">Variant Issue Detected</p>
-                               <p className="text-sm text-red-700 mt-1">{backendVariantError}</p>
+                                <p className="text-sm font-bold text-amber-800">Variants Out of Sync</p>
+                                <p className="text-xs text-amber-700 mt-1">
+                                    Your attribute selections have changed. Please click "Populate Table" to update the variants below before saving.
+                                </p>
                              </div>
-                           </div>
-                         ) : null}
-                      <div className="overflow-x-auto border border-gray-200 rounded-xl">
+                        </div>
+                    )}
+
+                    {/* Variants Table Header */}
+                    {variantFields.length > 0 && (
+                      <div className="border-t border-gray-100 pt-6">
+                         <label className="block text-sm font-bold text-gray-700 flex items-center mb-4">
+                             <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-primary/10 text-brand-primary text-[10px] mr-2">3</span>
+                             Manage Variants ({variantFields.length})
+                         </label>
+
+                          {/* Variant Specific Errors */}
+                          {backendVariantError ? (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                              <div className="p-2 bg-red-100 rounded-xl">
+                                <X className="w-4 h-4 text-red-600" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-red-900">Variant Issue Detected</p>
+                                <p className="text-sm text-red-700 mt-1">{backendVariantError}</p>
+                              </div>
+                            </div>
+                          ) : null}
+                       <div className="overflow-x-auto border border-gray-200 rounded-xl">
                         <table className="w-full text-left text-sm">
                           <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
@@ -837,6 +887,13 @@ const ProductForm: React.FC = () => {
                                     />
                                 </td>
                                 <td className="px-4 py-3">
+                                    <input
+                                      {...register(`variants.${index}.barcode`)}
+                                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary text-sm text-gray-900 placeholder-gray-400 relative z-10 pointer-events-auto"
+                                      placeholder="Barcode"
+                                    />
+                                </td>
+                                <td className="px-4 py-3">
                                    <input
                                     type="number"
                                     step="0.01"
@@ -851,15 +908,7 @@ const ProductForm: React.FC = () => {
                                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary text-sm text-gray-900 placeholder-gray-400 relative z-10 pointer-events-auto"
                                   />
                                 </td>
-                                <td className="px-4 py-3">
-                                    <input
-                                      {...register(`variants.${index}.barcode`)}
-                                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary text-sm text-gray-900 placeholder-gray-400 relative z-10 pointer-events-auto"
-                                      placeholder="Barcode"
-                                    />
-                                </td>
                                 <td className="px-4 py-3 text-center">
-                                  {/* <button type="button" onClick={() => removeVariant(index)} className="text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button> */}
                                 </td>
                               </tr>
                             ))}
@@ -923,7 +972,7 @@ const ProductForm: React.FC = () => {
             </div>
           </div>
           
-           {/* Pricing & Inventory - Moved Here */}
+           {/* Pricing & Inventory */}
            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
             <h3 className="text-lg font-bold text-gray-900 border-b border-gray-50 pb-4">Pricing & Inventory</h3>
             

@@ -14,6 +14,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { ordersApi, type Order, type OrderStatus } from '../../api/orders';
+import Swal from 'sweetalert2';
 
 const statusConfig: Record<OrderStatus, { color: string; bg: string; icon: any }> = {
   PENDING: { color: 'text-amber-600', bg: 'bg-amber-50', icon: Clock },
@@ -49,12 +50,54 @@ const OrderDetails: React.FC = () => {
   };
 
   const handleUpdateStatus = async (status: OrderStatus) => {
+    const result = await Swal.fire({
+      title: 'Update Status?',
+      text: `Are you sure you want to change the order status to ${status}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Update',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#000000',
+      cancelButtonColor: '#71717a',
+      background: '#ffffff',
+      customClass: {
+        popup: 'rounded-[32px] overflow-hidden border-none shadow-2xl',
+        confirmButton: 'rounded-xl font-bold px-8 py-3',
+        cancelButton: 'rounded-xl font-bold px-8 py-3'
+      }
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       setIsUpdating(true);
       await ordersApi.updateStatus(id!, status);
+      
+      Swal.fire({
+        title: 'Updated!',
+        text: 'Order status has been updated.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#ffffff',
+        customClass: {
+          popup: 'rounded-[32px]'
+        }
+      });
+
       await fetchOrder();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update status:', error);
+      Swal.fire({
+        title: 'Error!',
+        text: error.response?.data?.message || 'Update failed',
+        icon: 'error',
+        confirmButtonColor: '#000000',
+        customClass: {
+          popup: 'rounded-[32px]',
+          confirmButton: 'rounded-xl font-bold px-8 py-3'
+        }
+      });
     } finally {
       setIsUpdating(false);
     }
@@ -189,19 +232,58 @@ const OrderDetails: React.FC = () => {
             </h2>
             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl mb-4">
                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-primary font-bold shadow-sm">
-                 {order.user?.firstName.charAt(0)}
+                 {(order.user?.firstName || order.shippingAddress?.fullName || 'G').charAt(0)}
                </div>
                <div className="min-w-0">
-                  <p className="font-bold text-gray-900 truncate">{order.user?.firstName} {order.user?.lastName}</p>
-                  <p className="text-xs text-gray-500 truncate">{order.user?.email}</p>
+                  <p className="font-bold text-gray-900 truncate">
+                      {order.user ? `${order.user.firstName} ${order.user.lastName}` : (order.shippingAddress?.fullName || 'Guest Customer')}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                      {order.user?.email || order.guestEmail || 'No email provided'}
+                  </p>
+                  {!order.user && <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-200 text-gray-800 mt-1">Guest</span>}
                </div>
             </div>
-            <Link 
-              to={`/customers/${order.userId}`}
-              className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-gray-900 ml-0 text-white text-sm font-bold rounded-xl hover:bg-gray-800 transition-all"
-            >
-              View Profile
-            </Link>
+            {order.user ? (
+                <Link 
+                  to={`/customers/${order.userId}`}
+                  className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-gray-900 ml-0 text-white text-sm font-bold rounded-xl hover:bg-gray-800 transition-all"
+                >
+                  View Profile
+                </Link>
+            ) : (
+                <button
+                    onClick={() => {
+                        Swal.fire({
+                            title: 'Guest Details',
+                            html: `
+                                <div class="text-left space-y-3 px-4">
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase tracking-wider font-bold">Name</p>
+                                        <p class="font-bold text-gray-900">${order.shippingAddress?.fullName || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase tracking-wider font-bold">Email</p>
+                                        <p class="font-bold text-gray-900">${order.guestEmail || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase tracking-wider font-bold">Phone</p>
+                                        <p class="font-bold text-gray-900">${order.guestPhone || order.shippingAddress?.phone || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            `,
+                            confirmButtonColor: '#000000',
+                            customClass: {
+                                popup: 'rounded-[32px]',
+                                confirmButton: 'rounded-xl font-bold px-8 py-3'
+                            }
+                        });
+                    }}
+                    className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-white border-2 border-gray-100 text-gray-900 text-sm font-bold rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  View Guest Details
+                </button>
+            )}
           </div>
 
           {/* Shipping Card */}

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 export declare const createProductSchema: z.ZodObject<{
     sellerId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
+    brandId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     categoryId: z.ZodString;
     name: z.ZodString;
     slug: z.ZodString;
@@ -15,6 +16,7 @@ export declare const createProductSchema: z.ZodObject<{
     salePrice: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
     sku: z.ZodString;
     weight: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
+    isFeatured: z.ZodOptional<z.ZodBoolean>;
     variants: z.ZodOptional<z.ZodArray<z.ZodObject<{
         sku: z.ZodString;
         price: z.ZodNumber;
@@ -34,6 +36,7 @@ export declare const createProductSchema: z.ZodObject<{
     }, z.core.$strip>>>;
 }, z.core.$strip>;
 export declare const updateProductSchema: z.ZodObject<{
+    brandId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     categoryId: z.ZodOptional<z.ZodString>;
     name: z.ZodOptional<z.ZodString>;
     slug: z.ZodOptional<z.ZodString>;
@@ -48,6 +51,7 @@ export declare const updateProductSchema: z.ZodObject<{
         DISCONTINUED: "DISCONTINUED";
     }>>;
     weight: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
+    isFeatured: z.ZodOptional<z.ZodBoolean>;
     variants: z.ZodOptional<z.ZodArray<z.ZodObject<{
         sku: z.ZodString;
         price: z.ZodNumber;

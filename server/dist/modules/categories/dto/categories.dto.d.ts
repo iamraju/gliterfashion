@@ -6,6 +6,8 @@ export declare const createCategorySchema: z.ZodObject<{
     parentId: z.ZodPipe<z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>, z.ZodTransform<string | null | undefined, string | undefined>>;
     imageUrl: z.ZodOptional<z.ZodString>;
     isActive: z.ZodPipe<z.ZodTransform<unknown, unknown>, z.ZodOptional<z.ZodBoolean>>;
+    showInNavBar: z.ZodPipe<z.ZodTransform<unknown, unknown>, z.ZodOptional<z.ZodBoolean>>;
+    showInHomePage: z.ZodPipe<z.ZodTransform<unknown, unknown>, z.ZodOptional<z.ZodBoolean>>;
     sortOrder: z.ZodPipe<z.ZodTransform<{} | undefined, unknown>, z.ZodOptional<z.ZodNumber>>;
     gender: z.ZodOptional<z.ZodNullable<z.ZodEnum<{
         MEN: "MEN";
@@ -20,6 +22,8 @@ export declare const updateCategorySchema: z.ZodObject<{
     parentId: z.ZodNullable<z.ZodPipe<z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>, z.ZodTransform<string | null | undefined, string | undefined>>>;
     imageUrl: z.ZodOptional<z.ZodString>;
     isActive: z.ZodPipe<z.ZodTransform<unknown, unknown>, z.ZodOptional<z.ZodBoolean>>;
+    showInNavBar: z.ZodPipe<z.ZodTransform<unknown, unknown>, z.ZodOptional<z.ZodBoolean>>;
+    showInHomePage: z.ZodPipe<z.ZodTransform<unknown, unknown>, z.ZodOptional<z.ZodBoolean>>;
     sortOrder: z.ZodPipe<z.ZodTransform<{} | undefined, unknown>, z.ZodOptional<z.ZodNumber>>;
     gender: z.ZodOptional<z.ZodNullable<z.ZodEnum<{
         MEN: "MEN";

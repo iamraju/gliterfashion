@@ -5,6 +5,7 @@ const zod_1 = require("zod");
 const client_1 = require("@prisma/client");
 exports.createProductSchema = zod_1.z.object({
     sellerId: zod_1.z.string().uuid().optional().nullable(),
+    brandId: zod_1.z.string().uuid().optional().nullable(),
     categoryId: zod_1.z.string().uuid(),
     name: zod_1.z.string().min(1),
     slug: zod_1.z.string().min(1),
@@ -14,6 +15,7 @@ exports.createProductSchema = zod_1.z.object({
     salePrice: zod_1.z.number().min(0).optional().nullable(),
     sku: zod_1.z.string().min(1),
     weight: zod_1.z.number().min(0).optional().nullable(),
+    isFeatured: zod_1.z.boolean().optional(),
     // Variants (Optional initial creation? Usually yes)
     variants: zod_1.z.array(zod_1.z.object({
         sku: zod_1.z.string().min(1),
@@ -35,6 +37,7 @@ exports.createProductSchema = zod_1.z.object({
     })).optional()
 });
 exports.updateProductSchema = zod_1.z.object({
+    brandId: zod_1.z.string().uuid().optional().nullable(),
     categoryId: zod_1.z.string().uuid().optional(),
     name: zod_1.z.string().min(1).optional(),
     slug: zod_1.z.string().min(1).optional(),
@@ -44,6 +47,7 @@ exports.updateProductSchema = zod_1.z.object({
     sku: zod_1.z.string().min(1).optional(),
     status: zod_1.z.nativeEnum(client_1.ProductStatus).optional(),
     weight: zod_1.z.number().min(0).optional().nullable(),
+    isFeatured: zod_1.z.boolean().optional(),
     variants: zod_1.z.array(zod_1.z.object({
         sku: zod_1.z.string().min(1),
         price: zod_1.z.number().min(0),

@@ -90,4 +90,28 @@ export class OrdersService {
         data: { status }
     });
   }
+
+  async cancelOrder(id: string, userId: string) {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      select: { userId: true, status: true }
+    });
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    if (order.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
+
+    if (order.status !== 'PENDING') {
+      throw new Error('Order cannot be cancelled as it is already ' + order.status.toLowerCase());
+    }
+
+    return prisma.order.update({
+      where: { id },
+      data: { status: 'CANCELLED' }
+    });
+  }
 }

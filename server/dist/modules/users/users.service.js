@@ -32,7 +32,11 @@ class UsersService {
                 lastName: true,
                 role: true,
                 createdAt: true,
-                sellerProfile: true
+                sellerProfile: true,
+                addresses: {
+                    where: { isDefault: true },
+                    take: 1
+                }
             }
         });
         if (!user) {

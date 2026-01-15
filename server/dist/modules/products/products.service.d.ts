@@ -11,9 +11,9 @@ export declare class ProductsService {
                 lastName: string;
                 role: import(".prisma/client").$Enums.Role;
                 id: string;
-                status: import(".prisma/client").$Enums.UserStatus;
                 createdAt: Date;
                 updatedAt: Date;
+                status: import(".prisma/client").$Enums.UserStatus;
             };
         } & {
             companyName: string | null;
@@ -36,6 +36,8 @@ export declare class ProductsService {
             parentId: string | null;
             imageUrl: string | null;
             isActive: boolean;
+            showInNavBar: boolean;
+            showInHomePage: boolean;
             sortOrder: number;
             gender: import(".prisma/client").$Enums.CategoryGender | null;
         };
@@ -44,9 +46,9 @@ export declare class ProductsService {
             createdAt: Date;
             imageUrl: string;
             sortOrder: number;
-            attributeValueId: string | null;
             isPrimary: boolean;
             productId: string;
+            attributeValueId: string | null;
         }[];
         variants: {
             id: string;
@@ -63,18 +65,20 @@ export declare class ProductsService {
         }[];
     } & {
         id: string;
-        status: import(".prisma/client").$Enums.ProductStatus;
         createdAt: Date;
         updatedAt: Date;
+        status: import(".prisma/client").$Enums.ProductStatus;
         name: string;
         slug: string;
         description: string | null;
         sellerId: string | null;
+        brandId: string | null;
         categoryId: string;
-        sku: string;
         basePrice: Prisma.Decimal;
-        salePrice: Prisma.Decimal | null;
+        sku: string;
+        isFeatured: boolean;
         weight: Prisma.Decimal | null;
+        salePrice: Prisma.Decimal | null;
     })[]>;
     findById(id: string): Promise<{
         seller: {
@@ -98,6 +102,8 @@ export declare class ProductsService {
             parentId: string | null;
             imageUrl: string | null;
             isActive: boolean;
+            showInNavBar: boolean;
+            showInHomePage: boolean;
             sortOrder: number;
             gender: import(".prisma/client").$Enums.CategoryGender | null;
         };
@@ -106,9 +112,9 @@ export declare class ProductsService {
             createdAt: Date;
             imageUrl: string;
             sortOrder: number;
-            attributeValueId: string | null;
             isPrimary: boolean;
             productId: string;
+            attributeValueId: string | null;
         }[];
         variants: ({
             productVariantAttribute: ({
@@ -129,8 +135,8 @@ export declare class ProductsService {
             } & {
                 id: string;
                 attributeId: string;
-                variantId: string;
                 attributeValueId: string;
+                variantId: string;
             })[];
         } & {
             id: string;
@@ -147,48 +153,54 @@ export declare class ProductsService {
         })[];
     } & {
         id: string;
-        status: import(".prisma/client").$Enums.ProductStatus;
         createdAt: Date;
         updatedAt: Date;
+        status: import(".prisma/client").$Enums.ProductStatus;
         name: string;
         slug: string;
         description: string | null;
         sellerId: string | null;
+        brandId: string | null;
         categoryId: string;
-        sku: string;
         basePrice: Prisma.Decimal;
-        salePrice: Prisma.Decimal | null;
+        sku: string;
+        isFeatured: boolean;
         weight: Prisma.Decimal | null;
+        salePrice: Prisma.Decimal | null;
     }>;
     create(data: z.infer<typeof createProductSchema>): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.ProductStatus;
         createdAt: Date;
         updatedAt: Date;
+        status: import(".prisma/client").$Enums.ProductStatus;
         name: string;
         slug: string;
         description: string | null;
         sellerId: string | null;
+        brandId: string | null;
         categoryId: string;
-        sku: string;
         basePrice: Prisma.Decimal;
-        salePrice: Prisma.Decimal | null;
+        sku: string;
+        isFeatured: boolean;
         weight: Prisma.Decimal | null;
+        salePrice: Prisma.Decimal | null;
     }>;
     update(id: string, data: z.infer<typeof updateProductSchema>): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.ProductStatus;
         createdAt: Date;
         updatedAt: Date;
+        status: import(".prisma/client").$Enums.ProductStatus;
         name: string;
         slug: string;
         description: string | null;
         sellerId: string | null;
+        brandId: string | null;
         categoryId: string;
-        sku: string;
         basePrice: Prisma.Decimal;
-        salePrice: Prisma.Decimal | null;
+        sku: string;
+        isFeatured: boolean;
         weight: Prisma.Decimal | null;
+        salePrice: Prisma.Decimal | null;
     }>;
     delete(id: string): Promise<{
         message: string;

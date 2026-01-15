@@ -5,7 +5,6 @@ import {
   Package, 
   ShoppingCart, 
   Users, 
-  Settings, 
   LogOut, 
   Menu, 
   X, 
@@ -17,7 +16,9 @@ import {
   Key,
   FolderTree,
   Tag,
-  Ticket
+  Ticket,
+  Truck,
+  CreditCard
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -35,11 +36,14 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
     { icon: Package, label: 'Products', path: '/products' },
     { icon: FolderTree, label: 'Categories', path: '/categories' },
     { icon: Tag, label: 'Attributes', path: '/attributes' },
+    { icon: Ticket, label: 'Brands', path: '/brands' },
     { icon: Ticket, label: 'Promotions', path: '/promotions' },
     { icon: ShoppingCart, label: 'Orders', path: '/orders' },
     { icon: Users, label: 'Users', path: '/users', adminOnly: true },
     { icon: ShoppingCart, label: 'Customers', path: '/customers' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: Tag, label: 'Settings', path: '/settings', adminOnly: true },
+    { icon: Truck, label: 'Shipping Methods', path: '/settings/shipping-methods', adminOnly: true },
+    { icon: CreditCard, label: 'Payment Methods', path: '/settings/payment-methods', adminOnly: true },
   ];
 
   const filteredMenuItems = menuItems.filter(item => !item.adminOnly || user?.role === 'SUPER_ADMIN');
@@ -64,12 +68,7 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
           {/* Logo Section */}
           <div className="p-8 flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20 group-hover:scale-110 transition-transform">
-                <Package className="text-white w-6 h-6" />
-              </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                {import.meta.env.VITE_APP_NAME || 'Glitter Admin'}
-              </span>
+              <img src="/logo.png" alt="Glitter logo" className="h-14 w-auto object-contain" />
             </Link>
             <button onClick={toggle} className="lg:hidden p-2 text-gray-400 hover:text-gray-600 transition-colors">
               <X className="w-6 h-6" />

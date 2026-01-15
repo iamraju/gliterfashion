@@ -115,4 +115,23 @@ export class OrdersController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async cancelOrder(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user.id;
+      const order = await ordersService.cancelOrder(id as string, userId as string);
+      res.json(order);
+    } catch (error: any) {
+      if (error.message === 'Order not found') {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      if (error.message === 'Unauthorized') {
+        res.status(403).json({ error: error.message });
+        return;
+      }
+      res.status(400).json({ error: error.message });
+    }
+  }
 }

@@ -8,8 +8,8 @@ class AuthController {
     async register(req, res) {
         try {
             const data = auth_dto_1.registerSchema.parse(req.body);
-            const user = await authService.register(data);
-            res.status(201).json(user);
+            const result = await authService.register(data);
+            res.status(201).json(result);
         }
         catch (error) {
             if (error.constructor.name === 'ZodError') {

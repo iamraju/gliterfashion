@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { usersApi, type User, type CreateUserInput, type UpdateUserInput } from '../../api/users';
 import Input from '../../components/ui/Input';
+import Swal from 'sweetalert2';
 
 const userSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -37,7 +38,6 @@ const UsersPage: React.FC = () => {
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
   const {
@@ -113,13 +113,51 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, name: string) => {
+    const result = await Swal.fire({
+      title: 'Delete User?',
+      text: `Are you sure you want to remove "${name}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#71717a',
+      background: '#ffffff',
+      customClass: {
+        popup: 'rounded-[32px] overflow-hidden border-none shadow-2xl',
+        confirmButton: 'rounded-xl font-bold px-8 py-3',
+        cancelButton: 'rounded-xl font-bold px-8 py-3'
+      }
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await usersApi.delete(id);
-      setIsDeleting(null);
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'User has been removed.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#ffffff',
+        customClass: {
+          popup: 'rounded-[32px]'
+        }
+      });
       fetchUsers();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Delete failed');
+      Swal.fire({
+        title: 'Error!',
+        text: err.response?.data?.message || 'Delete failed',
+        icon: 'error',
+        confirmButtonColor: '#000000',
+        customClass: {
+          popup: 'rounded-[32px]',
+          confirmButton: 'rounded-xl font-bold px-8 py-3'
+        }
+      });
     }
   };
 
@@ -223,7 +261,7 @@ const UsersPage: React.FC = () => {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => setIsDeleting(user.id)}
+                          onClick={() => handleDelete(user.id, `${user.firstName} ${user.lastName}`)}
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                           title="Delete User"
                         >
@@ -331,37 +369,6 @@ const UsersPage: React.FC = () => {
         </div>
       )}
 
-      {/* Delete Confirmation */}
-      {isDeleting && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setIsDeleting(null)} />
-          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Are you sure?</h3>
-              <p className="text-gray-500 text-sm">
-                This action cannot be undone. This user will be permanently removed from the platform.
-              </p>
-            </div>
-            <div className="p-6 bg-gray-50 flex items-center space-x-3">
-              <button
-                onClick={() => setIsDeleting(null)}
-                className="flex-1 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(isDeleting)}
-                className="flex-1 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-100 transition-all"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="fixed bottom-8 right-8 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 animate-in slide-in-from-right duration-300">

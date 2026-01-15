@@ -8,6 +8,8 @@ export interface Category {
   parentId?: string;
   imageUrl?: string;
   isActive: boolean;
+  showInNavBar: boolean;
+  showInHomePage: boolean;
   sortOrder: number;
   gender?: 'MEN' | 'WOMEN' | 'UNISEX' | null;
   parent?: Category;
@@ -23,6 +25,8 @@ export interface CreateCategoryInput {
   parentId?: string;
   imageUrl?: string;
   isActive?: boolean;
+  showInNavBar?: boolean;
+  showInHomePage?: boolean;
   sortOrder?: number;
   gender?: 'MEN' | 'WOMEN' | 'UNISEX' | null;
 }

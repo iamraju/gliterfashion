@@ -27,17 +27,33 @@ import attributesRoutes from './modules/attributes/attributes.routes';
 import productsRoutes from './modules/products/products.routes';
 import couponsRoutes from './modules/coupons/coupons.routes';
 import ordersRoutes from './modules/orders/orders.routes';
+import storeRoutes from './modules/store/store.routes';
+import brandsRoutes from './modules/brands/brands.routes';
 import reviewsRoutes from './modules/reviews/reviews.routes';
+import cartRoutes from './modules/cart/cart.routes';
+import checkoutRoutes from './modules/checkout/checkout.routes';
+import userStoreRoutes from './modules/users/user_store.routes';
+import settingsRoutes from './modules/settings/settings.routes';
+import countriesRoutes from './routes/countries.routes';
 
 app.use('/api/backoffice/auth', authRoutes);
+app.use('/api/store/auth', authRoutes);
 app.use('/api/backoffice/seller', sellerRoutes);
 app.use('/api/backoffice/users', userRoutes);
+app.use('/api/store/users', userStoreRoutes);
+app.use('/api/backoffice/settings', settingsRoutes);
 app.use('/api/backoffice/categories', categoriesRoutes);
 app.use('/api/backoffice/attributes', attributesRoutes);
 app.use('/api/backoffice/products', productsRoutes);
 app.use('/api/backoffice/coupons', couponsRoutes);
 app.use('/api/backoffice/orders', ordersRoutes);
+app.use('/api/store/cart', cartRoutes);
+app.use('/api/store/checkout', checkoutRoutes);
+app.use('/api/store', storeRoutes);
+app.use('/api/backoffice/brands', brandsRoutes);
 app.use('/api/backoffice/reviews', reviewsRoutes);
+app.use('/api/store/countries', countriesRoutes);
+app.use('/api/backoffice/countries', countriesRoutes);
 
 // Basic Route
 app.get("/", (req, res) => {

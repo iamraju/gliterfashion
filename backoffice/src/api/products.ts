@@ -34,6 +34,7 @@ export interface Product {
   id: string;
   sellerId: string;
   categoryId: string;
+  brandId?: string | null;
   name: string;
   slug: string;
   description?: string;
@@ -41,6 +42,7 @@ export interface Product {
   salePrice?: number | null;
   sku: string;
   status: ProductStatus;
+  isFeatured?: boolean;
   weight?: number;
   createdAt: string;
   updatedAt: string;
@@ -64,6 +66,7 @@ export interface CreateProductInput {
   salePrice?: number | null;
   sku: string;
   status?: ProductStatus;
+  isFeatured?: boolean;
   weight?: number;
   images?: File[];
   variants?: ProductVariantInput[];

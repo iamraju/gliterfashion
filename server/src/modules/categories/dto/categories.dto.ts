@@ -14,6 +14,20 @@ export const createCategorySchema = z.object({
     }
     return val;
   }, z.boolean().optional()),
+  showInNavBar: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+    }
+    return val;
+  }, z.boolean().optional()),
+  showInHomePage: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+    }
+    return val;
+  }, z.boolean().optional()),
   sortOrder: z.preprocess((val) => {
     if (val === '' || val === null) return undefined;
     if (typeof val === 'string') return Number(val);
@@ -29,6 +43,20 @@ export const updateCategorySchema = z.object({
   parentId: z.string().uuid().optional().or(z.literal('')).transform(val => val === '' ? null : val).nullable(),
   imageUrl: z.string().optional(),
   isActive: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+    }
+    return val;
+  }, z.boolean().optional()),
+  showInNavBar: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+    }
+    return val;
+  }, z.boolean().optional()),
+  showInHomePage: z.preprocess((val) => {
     if (typeof val === 'string') {
       if (val === 'true') return true;
       if (val === 'false') return false;

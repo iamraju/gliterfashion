@@ -13,9 +13,9 @@ export declare class ReviewsService {
         };
     } & {
         id: string;
-        status: import(".prisma/client").$Enums.ReviewStatus;
         createdAt: Date;
         updatedAt: Date;
+        status: import(".prisma/client").$Enums.ReviewStatus;
         userId: string;
         productId: string;
         orderItemId: string | null;
@@ -26,9 +26,9 @@ export declare class ReviewsService {
     })[]>;
     updateStatus(id: string, status: ReviewStatus): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.ReviewStatus;
         createdAt: Date;
         updatedAt: Date;
+        status: import(".prisma/client").$Enums.ReviewStatus;
         userId: string;
         productId: string;
         orderItemId: string | null;

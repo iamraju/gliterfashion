@@ -132,13 +132,22 @@ class ProductsController {
             if (!id)
                 throw new Error('Product ID required');
             const bodyData = { ...req.body };
-            // Parse numeric fields
+            // Parse numeric fields from multipart body
             if (bodyData.basePrice)
                 bodyData.basePrice = parseFloat(bodyData.basePrice);
             if (bodyData.salePrice)
                 bodyData.salePrice = parseFloat(bodyData.salePrice);
-            if (bodyData.weight)
+            // Handle weight: allow empty string to be null
+            if (bodyData.weight === '' || bodyData.weight === null || bodyData.weight === undefined || bodyData.weight === 'null') {
+                bodyData.weight = null;
+            }
+            else {
                 bodyData.weight = parseFloat(bodyData.weight);
+            }
+            // Handle boolean strings
+            if (bodyData.isFeatured !== undefined) {
+                bodyData.isFeatured = bodyData.isFeatured === 'true' || bodyData.isFeatured === true;
+            }
             // Handle variants if sent as JSON string
             if (typeof bodyData.variants === 'string') {
                 try {
@@ -175,7 +184,11 @@ class ProductsController {
         }
         catch (error) {
             if (error.constructor.name === 'ZodError') {
-                res.status(400).json({ error: 'Validation Error', details: error.errors });
+                const formattedErrors = error.errors.map((err) => ({
+                    path: err.path.join('.'),
+                    message: err.message
+                }));
+                res.status(400).json({ error: 'Validation Error', details: formattedErrors });
                 return;
             }
             if (error.message === 'Product not found') {

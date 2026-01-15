@@ -6,9 +6,14 @@ type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export declare class AuthService {
     register(data: RegisterInput): Promise<{
-        id: string;
-        email: string;
-        role: import(".prisma/client").$Enums.Role;
+        token: string;
+        user: {
+            id: string;
+            email: string;
+            role: import(".prisma/client").$Enums.Role;
+            firstName: string;
+            lastName: string;
+        };
     }>;
     login(data: LoginInput): Promise<{
         token: string;

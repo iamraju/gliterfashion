@@ -4,18 +4,20 @@ export declare class CouponsService {
     findAll(sellerId?: string): Promise<({
         products: {
             id: string;
-            status: import(".prisma/client").$Enums.ProductStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProductStatus;
             name: string;
             slug: string;
             description: string | null;
             sellerId: string | null;
+            brandId: string | null;
             categoryId: string;
-            sku: string;
             basePrice: import("@prisma/client-runtime-utils").Decimal;
-            salePrice: import("@prisma/client-runtime-utils").Decimal | null;
+            sku: string;
+            isFeatured: boolean;
             weight: import("@prisma/client-runtime-utils").Decimal | null;
+            salePrice: import("@prisma/client-runtime-utils").Decimal | null;
         }[];
         categories: {
             id: string;
@@ -27,6 +29,8 @@ export declare class CouponsService {
             parentId: string | null;
             imageUrl: string | null;
             isActive: boolean;
+            showInNavBar: boolean;
+            showInHomePage: boolean;
             sortOrder: number;
             gender: import(".prisma/client").$Enums.CategoryGender | null;
         }[];
@@ -49,18 +53,20 @@ export declare class CouponsService {
     findById(id: string): Promise<{
         products: {
             id: string;
-            status: import(".prisma/client").$Enums.ProductStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProductStatus;
             name: string;
             slug: string;
             description: string | null;
             sellerId: string | null;
+            brandId: string | null;
             categoryId: string;
-            sku: string;
             basePrice: import("@prisma/client-runtime-utils").Decimal;
-            salePrice: import("@prisma/client-runtime-utils").Decimal | null;
+            sku: string;
+            isFeatured: boolean;
             weight: import("@prisma/client-runtime-utils").Decimal | null;
+            salePrice: import("@prisma/client-runtime-utils").Decimal | null;
         }[];
         categories: {
             id: string;
@@ -72,6 +78,8 @@ export declare class CouponsService {
             parentId: string | null;
             imageUrl: string | null;
             isActive: boolean;
+            showInNavBar: boolean;
+            showInHomePage: boolean;
             sortOrder: number;
             gender: import(".prisma/client").$Enums.CategoryGender | null;
         }[];
@@ -126,18 +134,20 @@ export declare class CouponsService {
     update(id: string, data: z.infer<typeof updateCouponSchema>): Promise<{
         products: {
             id: string;
-            status: import(".prisma/client").$Enums.ProductStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProductStatus;
             name: string;
             slug: string;
             description: string | null;
             sellerId: string | null;
+            brandId: string | null;
             categoryId: string;
-            sku: string;
             basePrice: import("@prisma/client-runtime-utils").Decimal;
-            salePrice: import("@prisma/client-runtime-utils").Decimal | null;
+            sku: string;
+            isFeatured: boolean;
             weight: import("@prisma/client-runtime-utils").Decimal | null;
+            salePrice: import("@prisma/client-runtime-utils").Decimal | null;
         }[];
         categories: {
             id: string;
@@ -149,6 +159,8 @@ export declare class CouponsService {
             parentId: string | null;
             imageUrl: string | null;
             isActive: boolean;
+            showInNavBar: boolean;
+            showInHomePage: boolean;
             sortOrder: number;
             gender: import(".prisma/client").$Enums.CategoryGender | null;
         }[];

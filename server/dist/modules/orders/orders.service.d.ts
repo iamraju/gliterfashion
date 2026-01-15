@@ -3,9 +3,9 @@ export declare class OrdersService {
     findAll(role: string, userId: string, sellerId?: string): Promise<({
         orderItems: {
             id: string;
-            status: import(".prisma/client").$Enums.OrderItemStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.OrderItemStatus;
             sellerId: string;
             orderId: string;
             productVariantId: string;
@@ -19,11 +19,13 @@ export declare class OrdersService {
         }[];
     } & {
         id: string;
-        status: import(".prisma/client").$Enums.OrderStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        userId: string | null;
         orderNumber: string;
+        guestEmail: string | null;
+        guestPhone: string | null;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
         taxAmount: import("@prisma/client-runtime-utils").Decimal;
         shippingAmount: import("@prisma/client-runtime-utils").Decimal;
@@ -41,12 +43,12 @@ export declare class OrdersService {
             firstName: string;
             lastName: string;
             id: string;
-        };
+        } | null;
         orderItems: {
             id: string;
-            status: import(".prisma/client").$Enums.OrderItemStatus;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.OrderItemStatus;
             sellerId: string;
             orderId: string;
             productVariantId: string;
@@ -58,22 +60,6 @@ export declare class OrdersService {
             commissionRate: import("@prisma/client-runtime-utils").Decimal;
             commissionAmount: import("@prisma/client-runtime-utils").Decimal;
         }[];
-        shippingAddress: {
-            type: import(".prisma/client").$Enums.AddressType;
-            city: string;
-            state: string;
-            country: string;
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            userId: string;
-            fullName: string;
-            phone: string;
-            addressLine1: string;
-            addressLine2: string | null;
-            postalCode: string;
-            isDefault: boolean;
-        };
         billingAddress: {
             type: import(".prisma/client").$Enums.AddressType;
             city: string;
@@ -82,7 +68,23 @@ export declare class OrdersService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            userId: string;
+            userId: string | null;
+            fullName: string;
+            phone: string;
+            addressLine1: string;
+            addressLine2: string | null;
+            postalCode: string;
+            isDefault: boolean;
+        };
+        shippingAddress: {
+            type: import(".prisma/client").$Enums.AddressType;
+            city: string;
+            state: string;
+            country: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string | null;
             fullName: string;
             phone: string;
             addressLine1: string;
@@ -92,11 +94,13 @@ export declare class OrdersService {
         };
     } & {
         id: string;
-        status: import(".prisma/client").$Enums.OrderStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        userId: string | null;
         orderNumber: string;
+        guestEmail: string | null;
+        guestPhone: string | null;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
         taxAmount: import("@prisma/client-runtime-utils").Decimal;
         shippingAmount: import("@prisma/client-runtime-utils").Decimal;
@@ -110,11 +114,13 @@ export declare class OrdersService {
     }>;
     updateStatus(id: string, status: OrderStatus): Promise<{
         id: string;
-        status: import(".prisma/client").$Enums.OrderStatus;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
+        userId: string | null;
         orderNumber: string;
+        guestEmail: string | null;
+        guestPhone: string | null;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
         taxAmount: import("@prisma/client-runtime-utils").Decimal;
         shippingAmount: import("@prisma/client-runtime-utils").Decimal;

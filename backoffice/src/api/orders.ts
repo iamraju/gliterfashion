@@ -19,6 +19,8 @@ export interface Order {
   id: string;
   orderNumber: string;
   userId: string;
+  guestEmail?: string;
+  guestPhone?: string;
   status: OrderStatus;
   subtotal: number;
   taxAmount: number;

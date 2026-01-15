@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatProductWithImages = exports.formatCategoryWithImage = exports.getFullImageUrl = void 0;
+exports.formatCartWithImages = exports.formatBrandWithLogo = exports.formatProductWithImages = exports.formatCategoryWithImage = exports.getFullImageUrl = void 0;
 const getFullImageUrl = (req, filename) => {
     if (!filename)
         return null;
@@ -44,4 +44,28 @@ const formatProductWithImages = (req, product) => {
     return formatted;
 };
 exports.formatProductWithImages = formatProductWithImages;
+const formatBrandWithLogo = (req, brand) => {
+    if (!brand)
+        return brand;
+    return {
+        ...brand,
+        logoUrl: (0, exports.getFullImageUrl)(req, brand.logoUrl)
+    };
+};
+exports.formatBrandWithLogo = formatBrandWithLogo;
+const formatCartWithImages = (req, cart) => {
+    if (!cart)
+        return cart;
+    return {
+        ...cart,
+        items: cart.items?.map((item) => ({
+            ...item,
+            variant: item.variant ? {
+                ...item.variant,
+                product: (0, exports.formatProductWithImages)(req, item.variant.product)
+            } : null
+        }))
+    };
+};
+exports.formatCartWithImages = formatCartWithImages;
 //# sourceMappingURL=image.js.map

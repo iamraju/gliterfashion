@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import PageBanner from '../components/common/PageBanner';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { ShieldCheck, Truck, CreditCard, ChevronRight, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
 
 const API_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/store');
 
@@ -369,12 +371,9 @@ const Checkout = () => {
         subtitle="Securely complete your purchase."
         image="https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2070&auto=format&fit=crop"
       />
+
       <div className="container mx-auto px-4 py-12 lg:py-20">
-        <div className="flex items-center gap-3 mb-12 text-sm">
-          <Link to="/cart" className="text-gray-400 hover:text-black">Bag</Link>
-          <ChevronRight size={14} className="text-gray-300" />
-          <span className="font-bold">Checkout</span>
-        </div>
+        <Breadcrumbs items={[{ label: 'Bag', path: '/cart' }, { label: 'Checkout' }]} />
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           <div className="lg:col-span-7 space-y-12">
@@ -756,7 +755,7 @@ const Checkout = () => {
                     <div className="flex-1">
                       <div className="flex justify-between items-center">
                         <span className="font-bold text-gray-900">{method.title}</span>
-                        <span className="text-sm font-bold text-accent">रु. {parseFloat(method.charge).toLocaleString()}</span>
+                        <span className="text-sm font-bold text-accent">{formatCurrency(method.charge)}</span>
                       </div>
                       <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-0.5">
                         {method.deliveryTimeDays}d {method.deliveryTimeHours}h Delivery
@@ -813,7 +812,7 @@ const Checkout = () => {
                         <span className="font-bold text-gray-900">{method.title}</span>
                       </div>
                       <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-0.5">
-                        {parseFloat(method.charge) > 0 ? `रु. ${parseFloat(method.charge)} Extra Fee` : 'No Extra Fee'}
+                        {parseFloat(method.charge) > 0 ? `${formatCurrency(method.charge)} Extra Fee` : 'No Extra Fee'}
                       </p>
                     </div>
                   </label>
@@ -870,7 +869,7 @@ const Checkout = () => {
                       <h4 className="text-sm font-bold line-clamp-1 mb-1">{item.variant?.product?.name}</h4>
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">Qty: {item.quantity}</span>
-                        <span className="font-bold">रु. {(parseFloat(item.variant?.price || item.priceAtAdd) * item.quantity).toLocaleString()}</span>
+                        <span className="font-bold">{formatCurrency(parseFloat(item.variant?.price || item.priceAtAdd) * item.quantity)}</span>
                       </div>
                     </div>
                   </div>
@@ -880,25 +879,25 @@ const Checkout = () => {
               <div className="space-y-4 pt-6 border-t border-gray-100 mb-8">
                 <div className="flex justify-between text-gray-500 text-sm">
                   <span>Subtotal</span>
-                  <span className="font-bold text-gray-900">रु. {subtotal.toLocaleString()}</span>
+                  <span className="font-bold text-gray-900">{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-500 text-sm">
                   <span>Shipping</span>
-                  <span className="font-bold text-gray-900">{shipping === 0 ? 'Free' : `रु. ${shipping.toLocaleString()}`}</span>
+                  <span className="font-bold text-gray-900">{shipping === 0 ? 'Free' : formatCurrency(shipping)}</span>
                 </div>
                 {paymentCharge > 0 && (
                   <div className="flex justify-between text-gray-500 text-sm">
                     <span>Payment Fee</span>
-                    <span className="font-bold text-gray-900">रु. {paymentCharge.toLocaleString()}</span>
+                    <span className="font-bold text-gray-900">{formatCurrency(paymentCharge)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-500 text-sm">
                   <span>VAT (13%)</span>
-                  <span className="font-bold text-gray-900">रु. {tax.toLocaleString()}</span>
+                  <span className="font-bold text-gray-900">{formatCurrency(tax)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-4 text-xl">
                   <span className="font-serif font-bold">Total</span>
-                  <span className="font-bold text-accent">रु. {total.toLocaleString()}</span>
+                  <span className="font-bold text-accent">{formatCurrency(total)}</span>
                 </div>
               </div>
 

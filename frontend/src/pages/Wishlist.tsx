@@ -5,6 +5,7 @@ import { useCartStore } from '../store/cartStore';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Trash2, Heart } from 'lucide-react';
 import PageBanner from '../components/common/PageBanner';
+import { formatCurrency } from '../utils/currency';
 
 const Wishlist = () => {
   const { items, loading, fetchWishlist, removeFromWishlist } = useWishlistStore();
@@ -77,7 +78,7 @@ const Wishlist = () => {
                   </div>
                   <div className="p-4">
                     <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
-                    <p className="text-sm text-gray-500 mb-4">रु. {parseFloat(product.basePrice).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500 mb-4">{formatCurrency(product.basePrice)}</p>
                     
                     <button 
                       onClick={() => handleMoveToBag(item)}

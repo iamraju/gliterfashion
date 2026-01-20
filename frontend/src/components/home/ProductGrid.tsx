@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useWishlistStore } from '../../store/wishlistStore';
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../../utils/currency';
 
 const WishlistButton = ({ productId }: { productId: string }) => {
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlistStore();
@@ -147,11 +148,11 @@ const ProductGrid = ({ title, subtitle, products, loading = false, viewAllLink =
                    <div className="flex items-center gap-2">
                      {product.salePrice ? (
                        <>
-                         <span className="font-bold text-red-500">रु.{product.salePrice}</span>
-                         <span className="text-sm text-gray-400 line-through">रु.{product.basePrice}</span>
+                         <span className="font-bold text-red-500">{formatCurrency(product.salePrice)}</span>
+                         <span className="text-sm text-gray-400 line-through">{formatCurrency(product.basePrice)}</span>
                        </>
                      ) : (
-                       <span className="font-bold text-gray-900">रु.{product.basePrice}</span>
+                       <span className="font-bold text-gray-900">{formatCurrency(product.basePrice)}</span>
                      )}
                    </div>
                 </div>

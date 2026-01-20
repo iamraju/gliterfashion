@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { settingsApi, type PaymentMethod } from '../../../api/settings';
-import { Plus, Search, Pencil, Trash2, CreditCard } from 'lucide-react';
+import { Trash2, CreditCard, Plus, Search, Pencil } from 'lucide-react';
+import { formatCurrency } from '../../../utils/currency';
 import { Link } from 'react-router-dom';
 
 const PaymentMethods = () => {
@@ -101,7 +102,7 @@ const PaymentMethods = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      रु. {method.charge.toLocaleString()}
+                      {formatCurrency(method.charge)}
                     </td>
                     <td className="px-6 py-4">
                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${method.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>

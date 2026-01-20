@@ -10,6 +10,7 @@ import {
   Package,
   Image as ImageIcon
 } from 'lucide-react';
+import { formatCurrency } from '../../utils/currency';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { productsApi, type Product } from '../../api/products';
@@ -206,11 +207,11 @@ const ProductsPage: React.FC = () => {
                       <div className="flex flex-col">
                         <div className="flex items-center space-x-2">
                           <span className={`text-sm font-bold ${product.salePrice ? 'text-emerald-600' : 'text-gray-900'}`}>
-                            रु.{product.salePrice || product.basePrice}
+                            {formatCurrency(product.salePrice || product.basePrice)}
                           </span>
                           {product.salePrice && (
                             <span className="text-[10px] text-gray-400 line-through">
-                              रु.{product.basePrice}
+                              {formatCurrency(product.basePrice)}
                             </span>
                           )}
                         </div>

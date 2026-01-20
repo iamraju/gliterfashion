@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { settingsApi } from '../../../api/settings';
 import { ArrowLeft, Loader2, Upload } from 'lucide-react';
+import { CURRENCY_SYMBOL } from '../../../utils/currency';
 import { Link } from 'react-router-dom';
 
 interface ShippingMethodFormData {
@@ -134,7 +135,7 @@ const ShippingMethodForm = () => {
         <div className="grid grid-cols-2 gap-4">
           {/* Charge */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Charge (रु.)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Charge ({CURRENCY_SYMBOL})</label>
             <input 
               {...register('charge')}
               type="number"

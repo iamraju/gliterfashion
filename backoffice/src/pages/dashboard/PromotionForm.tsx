@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { couponsApi } from '../../api/coupons';
 import Input from '../../components/ui/Input';
+import { CURRENCY_SYMBOL } from '../../utils/currency';
 
 const promotionSchema = z.object({
   code: z.string().min(3, 'Code must be at least 3 characters').toUpperCase(),
@@ -229,7 +230,7 @@ const PromotionForm: React.FC = () => {
                             className="appearance-none block w-full px-4 py-3 border border-gray-300 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all sm:text-sm bg-white hover:border-gray-400"
                         >
                             <option value="PERCENTAGE">Percentage (%)</option>
-                            <option value="FIXED_AMOUNT">Fixed Amount (रु.)</option>
+                            <option value="FIXED_AMOUNT">Fixed Amount ({CURRENCY_SYMBOL})</option>
                         </select>
                     </div>
                     <Input
@@ -251,14 +252,14 @@ const PromotionForm: React.FC = () => {
                 <Input
                     type="number"
                     {...register('minOrderAmount', { valueAsNumber: true })}
-                    label="Min Order Amount (रु.)"
+                    label={`Min Order Amount (${CURRENCY_SYMBOL})`}
                     placeholder="Optional"
                     error={errors.minOrderAmount?.message}
                 />
                 <Input
                     type="number"
                     {...register('maxDiscountAmount', { valueAsNumber: true })}
-                    label="Max Discount (रु.)"
+                    label={`Max Discount (${CURRENCY_SYMBOL})`}
                     placeholder="Optional"
                     error={errors.maxDiscountAmount?.message}
                     disabled={selectedType === 'FIXED_AMOUNT'}

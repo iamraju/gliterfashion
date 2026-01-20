@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Layout from '../components/layout/Layout';
 import PageBanner from '../components/common/PageBanner';
+import Breadcrumbs from '../components/common/Breadcrumbs';
 import ProductGrid from '../components/home/ProductGrid';
 import { Star, Minus, Plus, ShoppingBag, Truck, ShieldCheck, Loader2, Heart } from 'lucide-react';
 import { storeApi } from '../api/store';
@@ -10,6 +11,7 @@ import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../utils/currency';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -201,16 +203,20 @@ const ProductDetail = () => {
       )}
       <PageBanner 
         title={product?.category?.name || 'Shop'} 
-        image="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop"
+        image="/images/product-top-banner.avif"
         className="mb-8"
       />
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="text-sm text-gray-500 mb-8 flex items-center gap-2">
-            <Link to="/" className="hover:text-black transition-colors">Home</Link> / 
-            <Link to="/products" className="hover:text-black transition-colors">Products</Link> / 
-            <span className="text-black font-medium">{product.name}</span>
-        </div>
+        {product && (
+            <Breadcrumbs 
+                items={[
+                    ...(product.category.parent ? [{ label: product.category.parent.name, path: `/products/${product.category.parent.slug}` }] : []),
+                    { label: product.category.name, path: `/products/${product.category.parent ? `${product.category.parent.slug}/` : ''}${product.category.slug}` },
+                    { label: product.name }
+                ]} 
+            />
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 mb-20">
           {/* Image Gallery */}
@@ -243,11 +249,11 @@ const ProductDetail = () => {
               <div className="flex flex-col">
                 {product.salePrice ? (
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl font-bold text-red-600">रु. {parseFloat(product.salePrice).toLocaleString()}</span>
-                    <span className="text-xl text-gray-400 line-through">रु. {parseFloat(product.basePrice).toLocaleString()}</span>
+                    <span className="text-3xl font-bold text-red-600">{formatCurrency(product.salePrice)}</span>
+                    <span className="text-xl text-gray-400 line-through">{formatCurrency(product.basePrice)}</span>
                   </div>
                 ) : (
-                  <span className="text-3xl font-bold text-gray-900">रु. {parseFloat(product.basePrice).toLocaleString()}</span>
+                  <span className="text-3xl font-bold text-gray-900">{formatCurrency(product.basePrice)}</span>
                 )}
               </div>
               <div className="h-8 w-px bg-gray-200" />
@@ -355,7 +361,7 @@ const ProductDetail = () => {
                  </div>
                  <div>
                    <h4 className="font-bold text-sm text-gray-900">Complimentary Shipping</h4>
-                   <p className="text-xs text-gray-500 font-medium">On orders above रु. 5,000</p>
+                   <p className="text-xs text-gray-500 font-medium">On orders above {formatCurrency(5000)}</p>
                  </div>
                </div>
                <div className="flex gap-4">

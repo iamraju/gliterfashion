@@ -1,76 +1,53 @@
-
 import type { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import Layout from '../layout/Layout';
-import { User, Package, MapPin, LogOut, ChevronRight } from 'lucide-react';
+import ProfileSidebar from './ProfileSidebar';
+
+import Breadcrumbs from '../common/Breadcrumbs';
+
 import { useAuthStore } from '../../store/authStore';
 
 interface ProfileLayoutProps {
   children: ReactNode;
+  breadcrumbs?: { label: string; path?: string }[];
 }
 
-const ProfileLayout = ({ children }: ProfileLayoutProps) => {
-  const { user, logout } = useAuthStore();
-
-  const navItems = [
-    { label: 'My Profile', path: '/profile', icon: User },
-    { label: 'My Orders', path: '/profile/orders', icon: Package },
-    { label: 'Addresses', path: '/profile/addresses', icon: MapPin },
-  ];
+const ProfileLayout = ({ children, breadcrumbs }: ProfileLayoutProps) => {
+  const { user } = useAuthStore();
 
   return (
     <Layout>
-      <div className="bg-gray-50/50 min-h-screen pt-24 pb-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar */}
-            <div className="lg:w-80">
-              <div className="bg-white rounded-[32px] border border-gray-100 p-8 shadow-sm">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center text-white text-2xl font-serif font-bold italic">
-                    {user?.firstName?.charAt(0)}
-                  </div>
-                  <div>
-                    <h2 className="font-serif font-bold text-xl">{user?.firstName} {user?.lastName}</h2>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
-                  </div>
-                </div>
+      <div className="min-h-screen bg-gray-50/50 py-12 lg:py-20">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+            <div>
+              <h1 className="text-4xl font-serif font-bold mb-2">Hello, {user?.firstName}</h1>
+              <p className="text-gray-500">Welcome back to your personal wardrobe hub.</p>
+            </div>
+          </div>
 
-                <nav className="space-y-2">
-                  {navItems.map((item) => (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      end={item.path === '/profile'}
-                      className={({ isActive }) =>
-                        `flex items-center justify-between p-4 rounded-2xl transition-all ${
-                          isActive
-                            ? 'bg-black text-white shadow-lg shadow-black/10'
-                            : 'bg-white text-gray-600 hover:bg-gray-50'
-                        }`
-                      }
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon size={20} />
-                        <span className="font-bold text-sm tracking-wide uppercase">{item.label}</span>
-                      </div>
-                      <ChevronRight size={16} className="opacity-50" />
-                    </NavLink>
-                  ))}
-                  
-                  <button
-                    onClick={logout}
-                    className="w-full flex items-center gap-3 p-4 rounded-2xl text-red-500 hover:bg-red-50 transition-all text-sm font-bold tracking-wide uppercase mt-4"
-                  >
-                    <LogOut size={20} />
-                    <span>Logout</span>
-                  </button>
-                </nav>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            {/* Sidebar */}
+            <div className="lg:col-span-3 space-y-4">
+               <ProfileSidebar />
+
+               <div className="bg-accent/10 p-8 rounded-[32px] border border-accent/10 relative overflow-hidden group">
+                <div className="relative z-10">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-accent mb-2">Glitter Insider</p>
+                  <h4 className="text-lg font-serif font-bold mb-4">You have 0 points</h4>
+                  <Link to="/loyalty" className="text-xs font-black border-b-2 border-accent pb-1 flex items-center gap-1 group-hover:gap-2 transition-all">
+                    View Rewards <ArrowRight size={14} />
+                  </Link>
+                </div>
+                <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-accent/10 rounded-full blur-2xl"></div>
               </div>
             </div>
 
             {/* Main Content */}
-            <div className="flex-1">
+            <div className="lg:col-span-9 space-y-10">
               <div className="bg-white rounded-[32px] border border-gray-100 p-8 md:p-12 shadow-sm min-h-[600px]">
                 {children}
               </div>

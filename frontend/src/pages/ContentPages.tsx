@@ -1,16 +1,23 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import Layout from '../components/layout/Layout';
 import PageBanner from '../components/common/PageBanner';
+
+import Breadcrumbs from '../components/common/Breadcrumbs';
 
 const ContentPage = ({ title, children }: { title: string, children: React.ReactNode }) => {
   return (
     <Layout>
+       <Helmet>
+         <title>{title} | Glitter Fashion</title>
+       </Helmet>
        <PageBanner 
           title={title}
           image="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop"
        />
       <div className="container mx-auto px-4 py-12 max-w-3xl">
-        <div className="prose prose-lg mx-auto">
+        <Breadcrumbs items={[{ label: title }]} />
+        <div className="prose prose-lg mx-auto prose-img:rounded-[32px] prose-img:my-10 prose-img:shadow-lg prose-p:mb-6 prose-p:leading-relaxed text-gray-600 prose-headings:font-serif">
           {children}
         </div>
       </div>

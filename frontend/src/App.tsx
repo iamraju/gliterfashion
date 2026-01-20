@@ -23,6 +23,7 @@ import EsewaFailure from './pages/EsewaFailure';
 import Wishlist from './pages/Wishlist';
 import PayPalSuccess from './pages/PayPalSuccess';
 import PayPalCancel from './pages/PayPalCancel';
+import TestimonialsPage from './pages/TestimonialsPage';
 
 import { Helmet } from 'react-helmet-async';
 
@@ -73,6 +74,8 @@ function App() {
         <Route path="/profile/addresses" element={<Addresses />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/testimonials" element={<TestimonialsPage />} />
         <Route path="*" element={<div className="p-20 text-center">404 - Page Not Found</div>} />
       </Routes>
     </Router>

@@ -6,6 +6,8 @@ import { ChevronDown, Loader2, Filter, X } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { storeApi } from '../api/store';
 import PageBanner from '../components/common/PageBanner';
+import Breadcrumbs from '../components/common/Breadcrumbs';
+import { CURRENCY_SYMBOL, formatCurrency } from '../utils/currency';
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -186,7 +188,7 @@ const Shop = () => {
           <h3 className="text-sm font-bold uppercase tracking-widest mb-4 border-b border-gray-100 pb-2">Price Range</h3>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[10px] uppercase text-gray-400 font-bold block mb-1">Min (रु.)</label>
+              <label className="text-[10px] uppercase text-gray-400 font-bold block mb-1">Min ({CURRENCY_SYMBOL})</label>
               <input 
                 type="number" 
                 placeholder="0" 
@@ -196,7 +198,7 @@ const Shop = () => {
               />
             </div>
             <div>
-              <label className="text-[10px] uppercase text-gray-400 font-bold block mb-1">Max (रु.)</label>
+              <label className="text-[10px] uppercase text-gray-400 font-bold block mb-1">Max ({CURRENCY_SYMBOL})</label>
               <input 
                 type="number" 
                 placeholder="100000" 
@@ -237,17 +239,77 @@ const Shop = () => {
     );
   };
 
+
+
+  // Determine active category name and parent name for display
+  const getCategoryNames = () => {
+    if (activeCategory === 'All') return { name: 'Premium Products', parent: null };
+    
+    // Safety check if categories aren't loaded yet
+    const hasCategories = categories.length > 0;
+
+    // 1. Try to find by parentSlug if it exists (most reliable for hierarchy)
+    if (parentSlug) {
+      const parentCat = hasCategories ? categories.find(c => c.slug === parentSlug) : null;
+      // Fallback to title-cased slug if category object not found yet
+      const parentName = parentCat ? parentCat.name : parentSlug.charAt(0).toUpperCase() + parentSlug.slice(1);
+      
+      const childName = (hasCategories && parentCat && parentCat.children)
+        ? parentCat.children.find((c: any) => c.slug === childSlug)?.name 
+        : (childSlug ? childSlug.charAt(0).toUpperCase() + childSlug.slice(1) : activeCategory);
+
+      return { 
+        name: childName || activeCategory, // Fallback
+        parent: parentName, 
+        parentSlug: parentSlug 
+      };
+    }
+
+    // 2. No parentSlug in URL, check if activeCategory is a root category
+    const rootCat = hasCategories ? categories.find(c => c.slug === activeCategory) : null;
+    if (rootCat) return { name: rootCat.name, parent: null };
+
+    // 3. Fallback: it might be a child category accessed directly(?) or just unknown
+    // Try to find it in children of all categories to see if we can deduce a parent
+    if (hasCategories) {
+        for (const cat of categories) {
+            if (cat.children) {
+                const child = cat.children.find((c: any) => c.slug === activeCategory);
+                if (child) return { name: child.name, parent: cat.name, parentSlug: cat.slug };
+            }
+        }
+    }
+    
+    // 4. Last resort: just display the activeCategory slug/name
+    return { name: activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1), parent: null };
+  };
+
+  const { name: displayCategoryName, parent: displayParentName, parentSlug: foundParentSlug } = getCategoryNames();
+  
+  // Construct title string
+  const browserTitle = displayParentName 
+    ? `Glitter Fashion | ${displayParentName} > ${displayCategoryName}`
+    : `Glitter Fashion | ${displayCategoryName}`;
+
   return (
     <Layout>
       <Helmet>
-        <title>{activeCategory === 'All' ? 'Shop' : activeCategory} | Glitter Fashion</title>
+        <title>{browserTitle}</title>
       </Helmet>
       <PageBanner 
-        title={searchQuery ? `Search: "${searchQuery}"` : (activeCategory === 'All' ? 'Our Collection' : activeCategory)}
+        title={searchQuery ? `Search: "${searchQuery}"` : displayCategoryName}
         subtitle="Discover our curated collection of premium fashion pieces designed for the modern lifestyle."
       />
 
       <div className="container mx-auto px-4 py-12">
+        <Breadcrumbs 
+          items={[
+            { label: 'Products', path: '/products' },
+            ...(displayParentName ? [{ label: displayParentName, path: `/products/${foundParentSlug}` }] : []),
+            ...(activeCategory !== 'All' ? [{ label: displayCategoryName }] : [])
+          ]} 
+        />
+        
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Sidebar Desktop */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
@@ -315,7 +377,7 @@ const Shop = () => {
                         <span className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">{product.category?.name}</span>
                         <h3 className="text-base font-serif font-bold group-hover:text-accent transition-colors line-clamp-1">{product.name}</h3>
                         <p className="font-bold mt-1 text-sm">
-                          रु. {product.basePrice ? parseFloat(product.basePrice.toString()).toLocaleString() : '0'}
+                          {formatCurrency(product.basePrice)}
                         </p>
                       </div>
                     </Link>

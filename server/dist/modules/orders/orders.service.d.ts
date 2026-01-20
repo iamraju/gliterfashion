@@ -36,6 +36,9 @@ export declare class OrdersService {
         shippingAddressId: string;
         billingAddressId: string;
         notes: string | null;
+        shippingNotes: string | null;
+        paymentNotes: string | null;
+        paymentProof: string | null;
     })[]>;
     findById(id: string, role: string, userId: string, sellerId?: string): Promise<{
         user: {
@@ -44,7 +47,49 @@ export declare class OrdersService {
             lastName: string;
             id: string;
         } | null;
-        orderItems: {
+        orderItems: ({
+            variant: {
+                product: {
+                    images: {
+                        id: string;
+                        createdAt: Date;
+                        imageUrl: string;
+                        sortOrder: number;
+                        isPrimary: boolean;
+                        productId: string;
+                        attributeValueId: string | null;
+                    }[];
+                } & {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    status: import(".prisma/client").$Enums.ProductStatus;
+                    name: string;
+                    slug: string;
+                    description: string | null;
+                    sellerId: string | null;
+                    brandId: string | null;
+                    categoryId: string;
+                    basePrice: import("@prisma/client-runtime-utils").Decimal;
+                    sku: string;
+                    isFeatured: boolean;
+                    weight: import("@prisma/client-runtime-utils").Decimal | null;
+                    salePrice: import("@prisma/client-runtime-utils").Decimal | null;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                isActive: boolean;
+                sku: string;
+                productId: string;
+                price: import("@prisma/client-runtime-utils").Decimal;
+                compareAtPrice: import("@prisma/client-runtime-utils").Decimal | null;
+                stockQuantity: number;
+                barcode: string | null;
+                lowStockThreshold: number | null;
+            };
+        } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -59,7 +104,7 @@ export declare class OrdersService {
             totalPrice: import("@prisma/client-runtime-utils").Decimal;
             commissionRate: import("@prisma/client-runtime-utils").Decimal;
             commissionAmount: import("@prisma/client-runtime-utils").Decimal;
-        }[];
+        })[];
         billingAddress: {
             type: import(".prisma/client").$Enums.AddressType;
             city: string;
@@ -70,11 +115,11 @@ export declare class OrdersService {
             updatedAt: Date;
             phone: string;
             userId: string | null;
+            countryCode: string | null;
             fullName: string;
             addressLine1: string;
             addressLine2: string | null;
             postalCode: string;
-            countryCode: string | null;
             isDefault: boolean;
         };
         shippingAddress: {
@@ -87,11 +132,11 @@ export declare class OrdersService {
             updatedAt: Date;
             phone: string;
             userId: string | null;
+            countryCode: string | null;
             fullName: string;
             addressLine1: string;
             addressLine2: string | null;
             postalCode: string;
-            countryCode: string | null;
             isDefault: boolean;
         };
     } & {
@@ -113,6 +158,9 @@ export declare class OrdersService {
         shippingAddressId: string;
         billingAddressId: string;
         notes: string | null;
+        shippingNotes: string | null;
+        paymentNotes: string | null;
+        paymentProof: string | null;
     }>;
     updateStatus(id: string, status: OrderStatus): Promise<{
         id: string;
@@ -133,6 +181,9 @@ export declare class OrdersService {
         shippingAddressId: string;
         billingAddressId: string;
         notes: string | null;
+        shippingNotes: string | null;
+        paymentNotes: string | null;
+        paymentProof: string | null;
     }>;
     cancelOrder(id: string, userId: string): Promise<{
         id: string;
@@ -153,6 +204,9 @@ export declare class OrdersService {
         shippingAddressId: string;
         billingAddressId: string;
         notes: string | null;
+        shippingNotes: string | null;
+        paymentNotes: string | null;
+        paymentProof: string | null;
     }>;
 }
 //# sourceMappingURL=orders.service.d.ts.map

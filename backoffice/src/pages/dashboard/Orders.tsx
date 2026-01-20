@@ -12,6 +12,7 @@ import {
   List
 } from 'lucide-react';
 import { ordersApi, type Order, type OrderStatus } from '../../api/orders';
+import { formatCurrency } from '../../utils/currency';
 import { Link } from 'react-router-dom';
 
 const statusConfig: Record<OrderStatus, { color: string; bg: string; icon: any }> = {
@@ -142,7 +143,7 @@ const Orders: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-bold text-gray-900">रु. {Number(order.totalAmount).toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">{formatCurrency(order.totalAmount)}</span>
                       </td>
                       <td className="px-6 py-4 text-gray-500 text-sm">
                         {new Date(order.createdAt).toLocaleDateString()}

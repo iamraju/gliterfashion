@@ -4,7 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+const path_1 = __importDefault(require("path"));
+// Ensure .env is loaded from the project root (server directory)
+dotenv_1.default.config({ path: path_1.default.join(__dirname, '../.env') });
 const app_1 = __importDefault(require("./app"));
 const PORT = process.env.PORT || 4000;
 app_1.default.listen(PORT, () => {

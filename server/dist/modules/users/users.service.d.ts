@@ -41,11 +41,11 @@ export declare class UsersService {
             updatedAt: Date;
             phone: string;
             userId: string | null;
+            countryCode: string | null;
             fullName: string;
             addressLine1: string;
             addressLine2: string | null;
             postalCode: string;
-            countryCode: string | null;
             isDefault: boolean;
         }[];
         sellerProfile: {

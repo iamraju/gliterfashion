@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { settingsApi, type ShippingMethod } from '../../../api/settings';
 import { Plus, Search, Pencil, Trash2, Truck, Clock } from 'lucide-react';
+import { formatCurrency } from '../../../utils/currency';
 import { Link } from 'react-router-dom';
 
 const ShippingMethods = () => {
@@ -102,7 +103,7 @@ const ShippingMethods = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      रु. {method.charge.toLocaleString()}
+                      {formatCurrency(method.charge)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 text-sm text-gray-600">

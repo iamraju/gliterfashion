@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { OrdersService } from './orders.service';
 import { OrderStatus } from '@prisma/client';
 import prisma from '../../database/client';
+import { formatProductWithImages } from '../../common/utils/image';
 
 const ordersService = new OrdersService();
 
@@ -86,6 +87,19 @@ export class OrdersController {
       const sellerId = user.sellerProfile?.id;
       
       const order = await ordersService.findById(id, user.role, user.id, sellerId);
+      
+      // Format images
+      if (order.orderItems) {
+        order.orderItems = order.orderItems.map((item: any) => {
+            if (item.variant && item.variant.product) {
+                // We need to cast to any because the prisma type might be strict, 
+                // but we know we included the relations in service.
+                item.variant.product = formatProductWithImages(req, item.variant.product);
+            }
+            return item;
+        }) as any;
+      }
+
       res.json(order);
     } catch (error: any) {
       if (error.message === 'Order not found') {

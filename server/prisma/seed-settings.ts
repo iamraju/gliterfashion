@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS = [
 
   {
     key: "currencyCode",
-    value: "NPR",
+    value: process.env.CURRENCY || "NPR",
     group: "GENERAL",
     label: "Currency Code",
     type: "text",
@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS = [
   },
   {
     key: "currencySymbol",
-    value: "Rs.",
+    value: process.env.CURRENCY_SYMBOL || "Rs.",
     group: "GENERAL",
     label: "Currency Symbol",
     type: "text",

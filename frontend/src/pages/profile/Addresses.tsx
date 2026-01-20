@@ -126,7 +126,7 @@ const Addresses = () => {
   };
 
   return (
-    <ProfileLayout>
+    <ProfileLayout breadcrumbs={[{ label: 'My Account', path: '/dashboard' }, { label: 'Saved Addresses' }]}>
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-serif font-bold mb-2">Saved Addresses</h1>

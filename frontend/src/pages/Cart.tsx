@@ -6,6 +6,8 @@ import { useCartStore } from '../store/cartStore';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import PageBanner from '../components/common/PageBanner';
+import Breadcrumbs from '../components/common/Breadcrumbs';
+import { formatCurrency } from '../utils/currency';
 
 const Cart = () => {
   const { cart, loading, updateQuantity, removeItem, initCart, applyCoupon, removeCoupon } = useCartStore();
@@ -135,7 +137,9 @@ const Cart = () => {
         subtitle="Review your selected items and proceed to checkout."
         image="https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=2064&auto=format&fit=crop"
       />
+
       <div className="container mx-auto px-4 py-8 lg:py-16">
+        <Breadcrumbs items={[{ label: 'Shopping Bag' }]} />
         <div className="flex items-center gap-4 mb-8">
           <span className="bg-gray-100 text-gray-500 px-4 py-1 rounded-full text-sm font-bold">{cartItems.length} Items</span>
         </div>
@@ -187,7 +191,7 @@ const Cart = () => {
                             <span className="text-xs font-bold bg-gray-100 px-2 py-1 rounded-lg">{sizeAttribute.attributeValue.value}</span>
                           </div>
                         )}
-                        <p className="font-bold text-xl">रु. {price.toLocaleString()}</p>
+                        <p className="font-bold text-xl">{formatCurrency(price)}</p>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
@@ -207,7 +211,7 @@ const Cart = () => {
                         </div>
                         <div className="text-right">
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Subtotal</span>
-                          <span className="font-bold text-lg">रु. {(price * item.quantity).toLocaleString()}</span>
+                          <span className="font-bold text-lg">{formatCurrency(price * item.quantity)}</span>
                         </div>
                       </div>
                     </div>
@@ -223,7 +227,7 @@ const Cart = () => {
                 <div className="space-y-6 mb-8">
                   <div className="flex justify-between items-center text-gray-600">
                     <span className="font-medium">Bag Subtotal</span>
-                    <span className="font-bold text-gray-900">रु. {subtotal.toLocaleString()}</span>
+                    <span className="font-bold text-gray-900">{formatCurrency(subtotal)}</span>
                   </div>
 
                   {discount > 0 && (
@@ -237,7 +241,7 @@ const Cart = () => {
                           Remove
                         </button>
                       </div>
-                      <span className="font-bold">- रु. {discount.toLocaleString()}</span>
+                      <span className="font-bold">- {formatCurrency(discount)}</span>
                     </div>
                   )}
 
@@ -265,7 +269,7 @@ const Cart = () => {
                   <div className="h-px bg-gray-200" />
                   <div className="flex justify-between items-center pt-2">
                     <span className="text-xl font-serif font-bold">Total</span>
-                    <span className="text-2xl font-bold">रु. {total.toLocaleString()}</span>
+                    <span className="text-2xl font-bold">{formatCurrency(total)}</span>
                   </div>
                 </div>
                 <Link to="/checkout" className="w-full bg-black text-white py-5 rounded-2xl font-bold hover:bg-accent transition-all duration-300 shadow-xl hover:shadow-accent/20 flex items-center justify-center gap-3 group">

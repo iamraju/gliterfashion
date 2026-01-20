@@ -22,12 +22,12 @@ const storage = multer_1.default.diskStorage({
     }
 });
 const fileFilter = (req, file, cb) => {
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
     if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
     }
     else {
-        cb(new Error('Invalid file type. Only JPEG, PNG, WEBP, and GIF are allowed.'));
+        cb(new Error('Invalid file type. Only JPEG, PNG, WEBP, GIF, and AVIF are allowed.'));
     }
 };
 exports.upload = (0, multer_1.default)({

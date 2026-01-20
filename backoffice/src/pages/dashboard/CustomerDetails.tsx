@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { customersApi, type Customer } from '../../api/customers';
 import { ordersApi, type Order } from '../../api/orders';
+import { formatCurrency } from '../../utils/currency';
 
 const CustomerDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -101,7 +102,7 @@ const CustomerDetails: React.FC = () => {
                   </div>
                   <div className="p-4 bg-emerald-50 rounded-2xl text-center">
                      <p className="text-[10px] uppercase font-black text-emerald-600/60 mb-1">Spent</p>
-                     <p className="text-2xl font-black text-emerald-600">रु. {orders.reduce((sum, o) => sum + Number(o.totalAmount), 0).toLocaleString()}</p>
+                     <p className="text-2xl font-black text-emerald-600">{formatCurrency(orders.reduce((sum, o) => sum + Number(o.totalAmount), 0))}</p>
                   </div>
                </div>
 
@@ -157,7 +158,7 @@ const CustomerDetails: React.FC = () => {
                          
                          <div className="flex items-center gap-8">
                             <div className="text-right">
-                               <p className="font-bold text-gray-900">रु. {Number(order.totalAmount).toLocaleString()}</p>
+                               <p className="font-bold text-gray-900">{formatCurrency(order.totalAmount)}</p>
                                <span className={`text-[10px] font-black uppercase ${
                                  order.status === 'DELIVERED' ? 'text-emerald-500' : 
                                  order.status === 'CANCELLED' ? 'text-rose-500' : 'text-amber-500'

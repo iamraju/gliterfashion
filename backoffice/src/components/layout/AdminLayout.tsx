@@ -20,7 +20,8 @@ import {
   Ticket,
   Truck,
   CreditCard,
-  BookOpen
+  BookOpen,
+  Settings
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -84,9 +85,10 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
       items: []
     },
     {
-      title: 'Settings',
-      icon: Tag, // Using Tag or Settings icon
+      title: 'System',
+      icon: Settings, 
       items: [
+        { name: 'Settings', path: '/settings', icon: Settings },
         { name: 'Shipping Methods', path: '/settings/shipping-methods', icon: Truck },
         { name: 'Payment Methods', path: '/settings/payment-methods', icon: CreditCard }
       ]

@@ -7,6 +7,7 @@ exports.OrdersController = void 0;
 const orders_service_1 = require("./orders.service");
 const client_1 = require("@prisma/client");
 const client_2 = __importDefault(require("../../database/client"));
+const image_1 = require("../../common/utils/image");
 const ordersService = new orders_service_1.OrdersService();
 class OrdersController {
     async getAllOrders(req, res) {
@@ -79,6 +80,17 @@ class OrdersController {
             const user = req.user;
             const sellerId = user.sellerProfile?.id;
             const order = await ordersService.findById(id, user.role, user.id, sellerId);
+            // Format images
+            if (order.orderItems) {
+                order.orderItems = order.orderItems.map((item) => {
+                    if (item.variant && item.variant.product) {
+                        // We need to cast to any because the prisma type might be strict, 
+                        // but we know we included the relations in service.
+                        item.variant.product = (0, image_1.formatProductWithImages)(req, item.variant.product);
+                    }
+                    return item;
+                });
+            }
             res.json(order);
         }
         catch (error) {

@@ -57,7 +57,19 @@ class OrdersService {
                 user: { select: { id: true, email: true, firstName: true, lastName: true } },
                 shippingAddress: true,
                 billingAddress: true,
-                orderItems: true
+                orderItems: {
+                    include: {
+                        variant: {
+                            include: {
+                                product: {
+                                    include: {
+                                        images: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         });
         if (!order) {

@@ -13,6 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { couponsApi, type Coupon, CouponType } from '../../api/coupons';
+import { formatCurrency } from '../../utils/currency';
 
 const Promotions: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -200,7 +201,7 @@ const Promotions: React.FC = () => {
                         {coupon.type === CouponType.PERCENTAGE ? (
                           <><Percent className="w-4 h-4 mr-1 text-blue-500" /> {Number(coupon.value)}% Off</>
                         ) : (
-                          <><CircleDollarSign className="w-4 h-4 mr-1 text-green-500" /> रु. {Number(coupon.value).toLocaleString()} Off</>
+                          <><CircleDollarSign className="w-4 h-4 mr-1 text-green-500" /> {formatCurrency(coupon.value)} Off</>
                         )}
                       </div>
                     </td>

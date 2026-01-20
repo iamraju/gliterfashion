@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Layout from '../components/layout/Layout';
 import { Loader2 } from 'lucide-react';
+import PageBanner from '../components/common/PageBanner';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/store';
 
@@ -57,10 +58,13 @@ const PageDetail: React.FC = () => {
 
     return (
         <Layout>
+            <PageBanner 
+                title={page.title} 
+                image="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop"
+            />
             <div className="container mx-auto px-4 py-12 lg:py-20 max-w-4xl">
-                <h1 className="text-4xl lg:text-5xl font-serif font-bold mb-8">{page.title}</h1>
                 <div 
-                    className="prose prose-lg max-w-none prose-headings:font-serif prose-a:text-black prose-a:font-bold prose-img:rounded-3xl"
+                    className="prose prose-lg max-w-none prose-headings:font-serif prose-a:text-black prose-a:font-bold prose-img:rounded-[32px] prose-img:my-12 prose-img:shadow-xl prose-p:mb-8 prose-p:leading-loose text-gray-600"
                     dangerouslySetInnerHTML={{ __html: page.content }}
                 />
             </div>

@@ -6,6 +6,7 @@ import { userApi } from '../../api/user';
 import { Loader2, Package, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
+import { formatCurrency } from '../../utils/currency';
 
 const Orders = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -91,7 +92,8 @@ const Orders = () => {
   };
 
   return (
-    <ProfileLayout>
+
+    <ProfileLayout breadcrumbs={[{ label: 'My Account', path: '/dashboard' }, { label: 'My Orders' }]}>
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold mb-2">My Orders</h1>
         <p className="text-gray-500">Track and manage your recent purchases.</p>
@@ -132,7 +134,7 @@ const Orders = () => {
                 <div className="flex items-center gap-8">
                   <div className="text-left md:text-right mr-4">
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
-                    <p className="font-bold text-gray-900">रु. {order.totalAmount.toLocaleString()}</p>
+                    <p className="font-bold text-gray-900">{formatCurrency(order.totalAmount)}</p>
                   </div>
                   <div className="shrink-0 flex items-center gap-4">
                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${getStatusColor(order.status)}`}>

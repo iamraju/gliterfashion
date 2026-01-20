@@ -93,7 +93,7 @@ const Account = () => {
   };
 
   return (
-    <ProfileLayout>
+    <ProfileLayout breadcrumbs={[{ label: 'My Account', path: '/dashboard' }, { label: 'My Profile' }]}>
       <div className="max-w-2xl">
         <h1 className="text-3xl font-serif font-bold mb-2">My Profile</h1>
         <p className="text-gray-500 mb-8">Manage your personal information and contact details.</p>

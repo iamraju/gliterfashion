@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { formatCurrency } from '../../utils/currency';
 import { 
   ChevronLeft, 
   Printer, 
@@ -192,8 +193,8 @@ const OrderDetails: React.FC = () => {
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="font-bold text-gray-900">रु. {Number(item.totalPrice).toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">रु. {Number(item.unitPrice).toLocaleString()} each</p>
+                    <p className="font-bold text-gray-900">{formatCurrency(item.totalPrice)}</p>
+                    <p className="text-xs text-gray-500">{formatCurrency(item.unitPrice)} each</p>
                   </div>
                 </div>
               ))}
@@ -204,23 +205,23 @@ const OrderDetails: React.FC = () => {
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 space-y-4">
              <div className="flex justify-between text-gray-600">
                <span>Subtotal</span>
-               <span className="font-medium text-gray-900">रु. {Number(order.subtotal).toLocaleString()}</span>
+               <span className="font-medium text-gray-900">{formatCurrency(order.subtotal)}</span>
              </div>
-             <div className="flex justify-between text-gray-600">
-               <span>Shipping Fee</span>
-               <span className="font-medium text-gray-900">रु. {Number(order.shippingAmount).toLocaleString()}</span>
+             <div className="flex justify-between text-sm py-2">
+               <span className="text-gray-500">Shipping</span>
+               <span className="font-medium text-gray-900">{formatCurrency(order.shippingAmount)}</span>
              </div>
-             <div className="flex justify-between text-gray-600">
-               <span>Tax (13% VAT)</span>
-               <span className="font-medium text-gray-900">रु. {Number(order.taxAmount).toLocaleString()}</span>
+             <div className="flex justify-between text-sm py-2">
+               <span className="text-gray-500">Tax</span>
+               <span className="font-medium text-gray-900">{formatCurrency(order.taxAmount)}</span>
              </div>
-             <div className="flex justify-between text-rose-600">
-               <span>Discount</span>
-               <span className="font-medium">- रु. {Number(order.discountAmount).toLocaleString()}</span>
+             <div className="flex justify-between text-sm py-2 text-red-600">
+               <span className="font-medium">Discount</span>
+               <span className="font-medium">- {formatCurrency(order.discountAmount)}</span>
              </div>
-             <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
-               <span className="text-lg font-bold text-gray-900">Total</span>
-               <span className="text-2xl font-black text-brand-primary">रु. {Number(order.totalAmount).toLocaleString()}</span>
+             <div className="flex justify-between text-lg font-bold py-4 border-t border-gray-100 mt-2">
+               <span>Total</span>
+               <span className="text-2xl font-black text-brand-primary">{formatCurrency(order.totalAmount)}</span>
              </div>
           </div>
         </div>

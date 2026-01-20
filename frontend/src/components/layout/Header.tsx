@@ -5,6 +5,7 @@ import { cn } from '../../utils/cn';
 import { storeApi } from '../../api/store';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
+import { formatCurrency } from '../../utils/currency';
 
 const Header = () => {
   const { totalItems, cart } = useCartStore();
@@ -197,7 +198,7 @@ const Header = () => {
                             <div className="flex-1 min-w-0 py-1">
                               <h4 className="text-xs font-bold line-clamp-1 group-hover/item:text-accent transition-colors">{product?.name}</h4>
                               <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">Qty: {item.quantity}</p>
-                              <p className="text-xs font-black mt-1">रु. {parseFloat(item.variant?.price || item.priceAtAdd).toLocaleString()}</p>
+                              <p className="text-xs font-black mt-1">{formatCurrency(item.variant?.price || item.priceAtAdd)}</p>
                             </div>
                           </div>
                         );

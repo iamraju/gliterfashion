@@ -6,6 +6,7 @@ import { userApi } from '../../api/user';
 import { Loader2, ArrowLeft, Package, MapPin, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
+import { formatCurrency } from '../../utils/currency';
 
 const OrderDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -101,9 +102,13 @@ const OrderDetails = () => {
   };
 
   return (
-    <ProfileLayout>
-      <div className="mb-12">
-        <Link to="/profile/orders" className="inline-flex items-center gap-2 text-gray-400 hover:text-black transition-all text-xs font-bold uppercase tracking-widest mb-6">
+    <ProfileLayout breadcrumbs={[
+      { label: 'My Account', path: '/dashboard' }, 
+      { label: 'My Orders', path: '/profile/orders' }, 
+      { label: order?.orderNumber || 'Order Details' }
+    ]}>
+      <div className="mb-8">
+        <Link to="/profile/orders" className="inline-flex items-center gap-2 text-gray-500 hover:text-black mb-4 transition-colors font-medium">
           <ArrowLeft size={16} />
           Back to Orders
         </Link>
@@ -150,8 +155,8 @@ const OrderDetails = () => {
                     <h4 className="font-bold text-gray-900 mb-1">{item.productName}</h4>
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-widest mb-2">Qty: {item.quantity}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-gray-900 border-b-2 border-accent/20">रु. {parseFloat(item.unitPrice).toLocaleString()}</span>
-                      <span className="text-black font-bold">रु. {parseFloat(item.totalPrice).toLocaleString()}</span>
+                      <span className="text-sm font-bold text-gray-900 border-b-2 border-accent/20">{formatCurrency(item.unitPrice)}</span>
+                      <span className="text-black font-bold">{formatCurrency(item.totalPrice)}</span>
                     </div>
                   </div>
                 </div>
@@ -167,27 +172,27 @@ const OrderDetails = () => {
             <div className="space-y-4">
               <div className="flex justify-between text-sm opacity-80">
                 <span>Subtotal</span>
-                <span>रु. {parseFloat(order.subtotal).toLocaleString()}</span>
+                <span>{formatCurrency(order.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm opacity-80">
                 <span>Shipping</span>
-                <span>रु. {parseFloat(order.shippingAmount).toLocaleString()}</span>
+                <span>{formatCurrency(order.shippingAmount)}</span>
               </div>
               <div className="flex justify-between text-sm opacity-80">
                 <span>Tax (VAT 13%)</span>
-                <span>रु. {parseFloat(order.taxAmount).toLocaleString()}</span>
+                <span>{formatCurrency(order.taxAmount)}</span>
               </div>
               {parseFloat(order.discountAmount) > 0 && (
                 <div className="flex justify-between text-sm text-green-400">
                   <span>Discount</span>
-                  <span>- रु. {parseFloat(order.discountAmount).toLocaleString()}</span>
+                  <span>- {formatCurrency(order.discountAmount)}</span>
                 </div>
               )}
               <div className="h-px bg-white/10 my-6" />
               <div className="flex justify-between items-end">
                 <div>
                     <p className="text-xs font-bold uppercase tracking-widest opacity-50 mb-1">Total</p>
-                    <p className="text-3xl font-serif font-bold italic">रु. {parseFloat(order.totalAmount).toLocaleString()}</p>
+                    <p className="text-3xl font-serif font-bold italic">{formatCurrency(order.totalAmount)}</p>
                 </div>
               </div>
             </div>

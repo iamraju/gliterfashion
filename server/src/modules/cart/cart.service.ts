@@ -1,4 +1,5 @@
 import prisma from '../../database/client';
+import { formatCurrency } from '../../common/utils/currency';
 
 export class CartService {
   async getCart(userId?: string, sessionId?: string): Promise<any> {
@@ -157,7 +158,8 @@ export class CartService {
     // Check minimum order amount (0 or null = no limit)
     if (coupon.minOrderAmount && parseFloat(coupon.minOrderAmount.toString()) > 0) {
       if (subtotal < parseFloat(coupon.minOrderAmount.toString())) {
-        throw new Error(`Minimum order amount of रु. ${coupon.minOrderAmount} required`);
+        const amount = typeof coupon.minOrderAmount === 'number' ? coupon.minOrderAmount : parseFloat(coupon.minOrderAmount.toString());
+        throw new Error(`Minimum order amount of ${formatCurrency(amount)} required`);
       }
     }
 

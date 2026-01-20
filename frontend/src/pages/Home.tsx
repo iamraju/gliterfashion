@@ -65,7 +65,7 @@ const Home = () => {
       <FeaturedCategories />
 
       {/* Testimonials */}
-      <Testimonials />
+      <Testimonials limit={4} />
     </Layout>
   );
 };

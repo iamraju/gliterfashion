@@ -63,6 +63,11 @@ app.use('/api/store/faqs', faqs_routes_1.default);
 app.use('/api/backoffice/testimonials', testimonials_routes_1.default);
 app.use('/api/store/testimonials', testimonials_routes_1.default);
 app.use('/api/store/settings', settings_routes_1.default);
+const banners_routes_1 = __importDefault(require("./modules/banners/banners.routes"));
+app.use('/api/backoffice/banners', banners_routes_1.default); // Protected (POST/PUT/DELETE)
+app.use('/api/store/banners', banners_routes_1.default); // Public (GET)
+const wishlist_routes_1 = __importDefault(require("./modules/wishlist/wishlist.routes"));
+app.use('/api/store/wishlist', wishlist_routes_1.default);
 const upload_routes_1 = __importDefault(require("./routes/upload.routes"));
 app.use('/api/backoffice/upload', upload_routes_1.default);
 // Basic Route

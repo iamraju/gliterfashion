@@ -140,8 +140,11 @@ const OrderDetails = () => {
               {order.orderItems.map((item: any) => (
                 <div key={item.id} className="flex gap-6 pb-6 border-b border-gray-200 last:border-0 last:pb-0">
                   <div className="w-20 h-24 bg-white rounded-xl border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden">
-                    {/* Simplified: Item might not have images here directly if it's snapshot */}
-                    <Package className="text-gray-200" size={32} />
+                    <img 
+                      src={item.variant?.product?.images?.find((i: any) => i.isPrimary)?.imageUrl || item.variant?.product?.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo"} 
+                      alt={item.productName}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-gray-900 mb-1">{item.productName}</h4>

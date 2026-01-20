@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import PageBanner from '../components/common/PageBanner';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import axios from 'axios';
@@ -51,12 +52,154 @@ const Checkout = () => {
     },
     paymentMethodId: '',
     shippingMethodId: '',
-    notes: ''
+    notes: '',
+    shippingNotes: '',
+    paymentNotes: ''
   });
 
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [shippingMethods, setShippingMethods] = useState<any[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
+
+  // ... (useEffect fetches remain same)
+
+  // ... (validateForm logic remains same mostly, handle paymentProof if needed)
+
+  // ... (handleInputChange remains same)
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPaymentProof(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      toast.error('Please fix the errors in the form');
+      return;
+    }
+
+    const selectedPayment = paymentMethods.find(m => m.id === formData.paymentMethodId);
+    const isBankTransfer = selectedPayment?.title?.toLowerCase().includes('bank') || selectedPayment?.title?.toLowerCase().includes('transfer');
+
+    if (isBankTransfer && !paymentProof) {
+      toast.error('Please upload bank transfer voucher');
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Confirm Order?',
+      text: "Are you ready to place your order?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Place Order',
+      cancelButtonText: 'Review Details',
+      confirmButtonColor: '#000000',
+      cancelButtonColor: '#71717a',
+      background: '#ffffff', // ... styles
+    });
+
+    if (!result.isConfirmed) return;
+
+    setLoading(true);
+
+    try {
+      // 1. Upload Proof if Bank Transfer
+      let proofUrl = '';
+      if (isBankTransfer && paymentProof) {
+        const uploadData = new FormData();
+        uploadData.append('proof', paymentProof);
+        
+        try {
+          // Use the public/store upload endpoint
+          const uploadRes = await axios.post(`${API_URL}/checkout/upload-proof`, uploadData, {
+             headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          proofUrl = uploadRes.data.url; // or filename/path
+        } catch (uplErr) {
+           console.error('Upload failed', uplErr);
+           toast.error('Failed to upload voucher');
+           setLoading(false);
+           return;
+        }
+      }
+
+      // ... (Rest of payload construction)
+      const shippingAddressForBackend: any = {
+        ...formData.shippingAddress,
+        fullName: `${formData.personalInfo.firstName} ${formData.personalInfo.lastName}`.trim(),
+        phone: formData.personalInfo.phone
+      };
+
+      let billingAddressForBackend: any = null;
+      if (formData.billingSameAsShipping) {
+        billingAddressForBackend = shippingAddressForBackend;
+      } else {
+        billingAddressForBackend = {
+          ...formData.billingAddress,
+          fullName: `${formData.personalInfo.firstName} ${formData.personalInfo.lastName}`.trim(),
+          phone: formData.personalInfo.phone
+        };
+      }
+
+      const payload = {
+        guestEmail: !isAuthenticated || !useProfileIdentity ? formData.personalInfo.email : undefined,
+        guestPhone: !isAuthenticated || !useProfileIdentity ? formData.personalInfo.phone : undefined,
+        cartId: cart?.id,
+        shippingAddress: shippingAddressForBackend,
+        billingAddress: billingAddressForBackend,
+        shippingMethodId: formData.shippingMethodId,
+        paymentMethodId: formData.paymentMethodId,
+        notes: formData.notes,
+        shippingNotes: formData.shippingNotes,
+        paymentNotes: formData.paymentNotes,
+        paymentProof: proofUrl
+      };
+
+      const config = isAuthenticated ? {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      } : {};
+
+      const response = await axios.post(`${API_URL}/checkout`, payload, config);
+      const { order, paymentData } = response.data;
+      
+      // ... (Handle redirects mostly same, add Mollie case)
+      if (paymentData && paymentData.type === 'esewa') {
+         // ... esewa form submit
+         const form = document.createElement("form");
+         form.setAttribute("method", "POST");
+         form.setAttribute("action", paymentData.actionUrl);
+         form.setAttribute("target", "_self");
+         for (const key in paymentData.params) {
+           const hiddenField = document.createElement("input");
+           hiddenField.setAttribute("type", "hidden");
+           hiddenField.setAttribute("name", key);
+           hiddenField.setAttribute("value", paymentData.params[key]);
+           form.appendChild(hiddenField);
+         }
+         document.body.appendChild(form);
+         form.submit();
+         return;
+      } else if (paymentData && paymentData.type === 'mollie') {
+          window.location.href = paymentData.actionUrl;
+          return;
+      } else if (paymentData && paymentData.type === 'paypal') {
+         window.location.href = paymentData.actionUrl;
+         return;
+      }
+
+      setOrderData(order);
+      setOrderComplete(true);
+      clearCart();
+      toast.success('Order placed successfully!');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to place order');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -179,79 +322,6 @@ const Checkout = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
-      return;
-    }
-
-    const result = await Swal.fire({
-      title: 'Confirm Order?',
-      text: "Are you ready to place your order? Once confirmed, we will begin processing it immediately.",
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Place Order',
-      cancelButtonText: 'Review Details',
-      confirmButtonColor: '#000000',
-      cancelButtonColor: '#71717a',
-      background: '#ffffff',
-      customClass: {
-        popup: 'rounded-[32px] font-sans',
-        confirmButton: 'rounded-xl font-bold px-8 py-3',
-        cancelButton: 'rounded-xl font-bold px-8 py-3'
-      }
-    });
-
-    if (!result.isConfirmed) return;
-
-    setLoading(true);
-
-    try {
-      // Merge personalInfo with shippingAddress for backend
-      const shippingAddressForBackend: any = {
-        ...formData.shippingAddress,
-        fullName: `${formData.personalInfo.firstName} ${formData.personalInfo.lastName}`.trim(),
-        phone: formData.personalInfo.phone
-      };
-
-      let billingAddressForBackend: any = null;
-      if (formData.billingSameAsShipping) {
-        billingAddressForBackend = shippingAddressForBackend;
-      } else {
-        billingAddressForBackend = {
-          ...formData.billingAddress,
-          fullName: `${formData.personalInfo.firstName} ${formData.personalInfo.lastName}`.trim(),
-          phone: formData.personalInfo.phone
-        };
-      }
-
-      const payload = {
-        guestEmail: !isAuthenticated || !useProfileIdentity ? formData.personalInfo.email : undefined,
-        guestPhone: !isAuthenticated || !useProfileIdentity ? formData.personalInfo.phone : undefined,
-        cartId: cart?.id,
-        shippingAddress: shippingAddressForBackend,
-        billingAddress: billingAddressForBackend,
-        shippingMethodId: formData.shippingMethodId,
-        paymentMethodId: formData.paymentMethodId,
-        notes: formData.notes
-      };
-
-      const config = isAuthenticated ? {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      } : {};
-
-      const response = await axios.post(`${API_URL}/checkout`, payload, config);
-      setOrderData(response.data);
-      setOrderComplete(true);
-      clearCart();
-      toast.success('Order placed successfully!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to place order');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (orderComplete) {
     return (
@@ -294,6 +364,11 @@ const Checkout = () => {
 
   return (
     <Layout>
+      <PageBanner 
+        title="Checkout"
+        subtitle="Securely complete your purchase."
+        image="https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2070&auto=format&fit=crop"
+      />
       <div className="container mx-auto px-4 py-12 lg:py-20">
         <div className="flex items-center gap-3 mb-12 text-sm">
           <Link to="/cart" className="text-gray-400 hover:text-black">Bag</Link>
@@ -496,29 +571,32 @@ const Checkout = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="space-y-2 md:col-span-2">
                      <label className="text-xs font-bold uppercase tracking-widest text-gray-400">Country</label>
-                     <select
-                       className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-5 focus:ring-2 focus:ring-accent transition-all outline-none appearance-none"
-                       value={formData.shippingAddress.countryCode || ''}
-                       onChange={(e) => {
-                         const selectedCountry = countries.find(c => c.code === e.target.value);
-                         setFormData({
-                           ...formData,
-                           shippingAddress: {
-                             ...formData.shippingAddress,
-                             countryCode: e.target.value,
-                             country: selectedCountry?.name || ''
-                           }
-                         });
-                       }}
-                     >
-                       <option value="">Select Country</option>
-                       {countries.map(c => (
-                         <option key={c.code} value={c.code}>{c.name}</option>
-                       ))}
-                     </select>
+                     <div className="relative">
+                       <select
+                         className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-5 focus:ring-2 focus:ring-accent transition-all outline-none appearance-none cursor-pointer"
+                         value={formData.shippingAddress.countryCode || ''}
+                         onChange={(e) => {
+                           const selectedCountry = countries.find(c => c.code === e.target.value);
+                           setFormData({
+                             ...formData,
+                             shippingAddress: {
+                               ...formData.shippingAddress,
+                               countryCode: e.target.value,
+                               country: selectedCountry?.name || ''
+                             }
+                           });
+                         }}
+                       >
+                         <option value="">Select Country</option>
+                         {countries.map(c => (
+                           <option key={c.code} value={c.code}>{c.name}</option>
+                         ))}
+                       </select>
+                       <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" size={20} />
+                     </div>
                   </div>
-                  <div className="space-y-2 col-span-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-gray-400">City</label>
+                  <div className="space-y-2 md:col-span-2">
+                     <label className="text-xs font-bold uppercase tracking-widest text-gray-400">City</label>
                     <input
                       type="text"
                       className={`w-full bg-white border-2 rounded-xl py-4 px-5 focus:ring-2 focus:ring-accent transition-all outline-none ${
@@ -574,26 +652,29 @@ const Checkout = () => {
                     <div className="mt-6 pt-6 border-t border-gray-200/60 space-y-6">
                       <div className="space-y-2">
                          <label className="text-xs font-bold uppercase tracking-widest text-gray-400">Country</label>
-                         <select
-                           className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-5 focus:ring-2 focus:ring-accent transition-all outline-none appearance-none"
-                           value={formData.billingAddress.countryCode || ''}
-                           onChange={(e) => {
-                             const selectedCountry = countries.find(c => c.code === e.target.value);
-                             setFormData({
-                               ...formData,
-                               billingAddress: {
-                                 ...formData.billingAddress,
-                                 countryCode: e.target.value,
-                                 country: selectedCountry?.name || ''
-                               }
-                             });
-                           }}
-                         >
-                           <option value="">Select Country</option>
-                           {countries.map(c => (
-                             <option key={c.code} value={c.code}>{c.name}</option>
-                           ))}
-                         </select>
+                         <div className="relative">
+                           <select
+                             className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-5 focus:ring-2 focus:ring-accent transition-all outline-none appearance-none cursor-pointer"
+                             value={formData.billingAddress.countryCode || ''}
+                             onChange={(e) => {
+                               const selectedCountry = countries.find(c => c.code === e.target.value);
+                               setFormData({
+                                 ...formData,
+                                 billingAddress: {
+                                   ...formData.billingAddress,
+                                   countryCode: e.target.value,
+                                   country: selectedCountry?.name || ''
+                                 }
+                               });
+                             }}
+                           >
+                             <option value="">Select Country</option>
+                             {countries.map(c => (
+                               <option key={c.code} value={c.code}>{c.name}</option>
+                             ))}
+                           </select>
+                           <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" size={20} />
+                         </div>
                       </div>
                       <div className="space-y-2">
                         <label className="text-xs font-bold uppercase tracking-widest text-gray-400">Address Line 1</label>
@@ -686,6 +767,16 @@ const Checkout = () => {
                 {errors.shippingMethodId && <p className="text-xs font-bold text-red-500 uppercase tracking-widest md:col-span-2 ml-4">{errors.shippingMethodId}</p>}
               </div>
             </section>
+            
+            <div className="mt-4 space-y-2">
+               <label className="text-xs font-bold uppercase tracking-widest text-gray-400">Shipping Notes (Optional)</label>
+               <textarea
+                 className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-5 focus:ring-2 focus:ring-accent transition-all outline-none h-24 resize-none"
+                 placeholder="Special instructions for delivery..."
+                 value={formData.shippingNotes}
+                 onChange={(e) => handleInputChange('root', 'shippingNotes', e.target.value)}
+               />
+            </div>
 
             {/* Payment Method */}
             <section>
@@ -730,6 +821,33 @@ const Checkout = () => {
                 {errors.paymentMethodId && <p className="text-xs font-bold text-red-500 uppercase tracking-widest md:col-span-2 ml-4">{errors.paymentMethodId}</p>}
               </div>
             </section>
+
+             {/* Bank Transfer Voucher Upload */}
+             {paymentMethods.find(m => m.id === formData.paymentMethodId)?.title.toLowerCase().includes('bank') && (
+               <div className="mt-6 p-6 bg-gray-50 border border-gray-100 rounded-2xl animate-in fade-in slide-in-from-top-4">
+                   <label className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 block flex items-center gap-2">
+                     <CreditCard size={16} />
+                     Upload Payment Voucher
+                   </label>
+                   <input 
+                     type="file" 
+                     accept="image/*"
+                     onChange={handleFileChange} 
+                     className="w-full bg-white text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-black file:text-white hover:file:bg-accent transition-all border border-gray-200 rounded-xl cursor-pointer"
+                   />
+                   <p className="text-[10px] text-gray-400 mt-3 font-bold uppercase tracking-widest">Please upload a screenshot or photo of your bank transfer.</p>
+               </div>
+             )}
+
+            <div className="mt-4 space-y-2">
+               <label className="text-xs font-bold uppercase tracking-widest text-gray-400">Payment Notes (Optional)</label>
+               <textarea
+                 className="w-full bg-white border-2 border-gray-100 rounded-xl py-4 px-5 focus:ring-2 focus:ring-accent transition-all outline-none h-24 resize-none"
+                 placeholder="Details about payment..."
+                 value={formData.paymentNotes}
+                 onChange={(e) => handleInputChange('root', 'paymentNotes', e.target.value)}
+               />
+            </div>
           </div>
 
           <div className="lg:col-span-5">
@@ -743,7 +861,7 @@ const Checkout = () => {
                   <div key={item.id} className="flex gap-4 group">
                     <div className="w-20 h-24 bg-gray-50 rounded-2xl overflow-hidden shrink-0 border border-gray-100">
                       <img 
-                        src={item.variant?.product?.images?.find((i: any) => i.isPrimary)?.imageUrl || item.variant?.product?.images?.[0]?.imageUrl} 
+                        src={item.variant?.product?.images?.find((i: any) => i.isPrimary)?.imageUrl || item.variant?.product?.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo"} 
                         alt={item.variant?.product?.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                       />

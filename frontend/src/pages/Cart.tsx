@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
+import PageBanner from '../components/common/PageBanner';
 
 const Cart = () => {
   const { cart, loading, updateQuantity, removeItem, initCart, applyCoupon, removeCoupon } = useCartStore();
@@ -129,9 +130,13 @@ const Cart = () => {
 
   return (
     <Layout>
+      <PageBanner 
+        title="Shopping Bag"
+        subtitle="Review your selected items and proceed to checkout."
+        image="https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=2064&auto=format&fit=crop"
+      />
       <div className="container mx-auto px-4 py-8 lg:py-16">
-        <div className="flex items-center gap-4 mb-12">
-          <h1 className="text-4xl lg:text-5xl font-serif font-bold">Shopping Bag</h1>
+        <div className="flex items-center gap-4 mb-8">
           <span className="bg-gray-100 text-gray-500 px-4 py-1 rounded-full text-sm font-bold">{cartItems.length} Items</span>
         </div>
 
@@ -152,7 +157,7 @@ const Cart = () => {
             <div className="lg:col-span-2 space-y-8">
               {cartItems.map((item: any) => {
                 const product = item.variant?.product;
-                const primaryImage = product?.images?.find((img: any) => img.isPrimary)?.imageUrl || product?.images?.[0]?.imageUrl;
+                const primaryImage = product?.images?.find((img: any) => img.isPrimary)?.imageUrl || product?.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo";
                 const price = parseFloat(item.variant?.price || item.priceAtAdd);
                 const sizeAttribute = item.variant?.productVariantAttribute?.find((a: any) => a.attribute.name === 'Size');
 

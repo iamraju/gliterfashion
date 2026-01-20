@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Layout from '../components/layout/Layout';
-import { Star, Minus, Plus, ShoppingBag, Truck, ShieldCheck, Loader2 } from 'lucide-react';
+import PageBanner from '../components/common/PageBanner';
+import ProductGrid from '../components/home/ProductGrid';
+import { Star, Minus, Plus, ShoppingBag, Truck, ShieldCheck, Loader2, Heart } from 'lucide-react';
 import { storeApi } from '../api/store';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
+import { useAuthStore } from '../store/authStore';
 import { toast } from 'react-hot-toast';
 
 const ProductDetail = () => {
@@ -15,6 +20,41 @@ const ProductDetail = () => {
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [activeImage, setActiveImage] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+
+  // Fetch related products when product is loaded
+  useEffect(() => {
+    if (product?.category?.slug) {
+        const fetchRelated = async () => {
+            try {
+                console.log('Fetching related products for category:', product.category.slug);
+                // Fetch more than needed to safely filter out current product and randomize
+                const data = await storeApi.getProducts({ 
+                    category: product.category.slug, 
+                    limit: 12 // Increased limit for better randomization
+                });
+                console.log('Related products raw data:', data);
+                
+                // Filter out current product
+                let related = (data.data || []).filter((p: any) => p.id !== product.id);
+                console.log('Related products after filter:', related.length);
+                
+                // Shuffle array (Fisher-Yates shuffle)
+                for (let i = related.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [related[i], related[j]] = [related[j], related[i]];
+                }
+
+                // Take first 5
+                setRelatedProducts(related.slice(0, 5));
+            } catch (err) {
+                console.error("Failed to fetch related products", err);
+            }
+        };
+        fetchRelated();
+    }
+  }, [product]);
+
 
   const handleAddToCart = async () => {
     // Check if all necessary attributes are selected
@@ -70,8 +110,8 @@ const ProductDetail = () => {
         setProduct(data);
         
         // Set initial active image (primary or first)
-        const primaryImg = data.images?.find((img: any) => img.isPrimary)?.imageUrl || data.images?.[0]?.imageUrl;
-        setActiveImage(primaryImg || '');
+        const primaryImg = data.images?.find((img: any) => img.isPrimary)?.imageUrl || data.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo";
+        setActiveImage(primaryImg);
         
         // Don't auto-select attributes - let the user choose explicitly
         setSelectedAttributes({});
@@ -149,8 +189,21 @@ const ProductDetail = () => {
     }
   };
 
+
+
   return (
     <Layout>
+      {product && (
+        <Helmet>
+          <title>{product.name} | Glitter Fashion</title>
+          <meta name="description" content={product.description?.replace(/<[^>]*>/g, '').substring(0, 160) || `Buy ${product.name} at Glitter Fashion`} />
+        </Helmet>
+      )}
+      <PageBanner 
+        title={product?.category?.name || 'Shop'} 
+        image="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop"
+        className="mb-8"
+      />
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="text-sm text-gray-500 mb-8 flex items-center gap-2">
@@ -159,7 +212,7 @@ const ProductDetail = () => {
             <span className="text-black font-medium">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 mb-20">
           {/* Image Gallery */}
           <div className="space-y-4">
              <div className="bg-gray-100 aspect-[3/4] overflow-hidden rounded-2xl relative shadow-sm">
@@ -270,6 +323,28 @@ const ProductDetail = () => {
                  <ShoppingBag size={22} className="group-hover:scale-110 transition-transform" />
                  <span className="uppercase tracking-widest text-sm">Add to Shopping Bag</span>
                </button>
+               
+               <button 
+                 onClick={() => {
+                   if (!useAuthStore.getState().isAuthenticated) {
+                     toast.error('Please login to save items');
+                     return;
+                   }
+                   const inWishlist = useWishlistStore.getState().isInWishlist(product.id);
+                   if (inWishlist) {
+                     useWishlistStore.getState().removeFromWishlist(product.id);
+                   } else {
+                      useWishlistStore.getState().addToWishlist(product.id);
+                   }
+                 }}
+                 className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all ${
+                   useWishlistStore.getState().isInWishlist(product.id)
+                     ? 'bg-red-50 border-red-200 text-red-500'
+                     : 'border-gray-200 hover:border-black text-gray-400 hover:text-black'
+                 }`}
+               >
+                 <Heart size={24} className={useWishlistStore.getState().isInWishlist(product.id) ? "fill-current" : ""} />
+               </button>
             </div>
 
             {/* Features */}
@@ -295,6 +370,18 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Related Products Section */}
+        {relatedProducts.length > 0 && (
+            <div className="border-t border-gray-200 pt-16">
+                <ProductGrid 
+                    title="You May Also Like" 
+                    subtitle="Curated picks just for you"
+                    products={relatedProducts} 
+                    viewAllLink={`/products?category=${product.category.slug}`}
+                />
+            </div>
+        )}
       </div>
     </Layout>
   );

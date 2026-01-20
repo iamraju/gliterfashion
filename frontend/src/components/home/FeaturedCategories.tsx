@@ -9,13 +9,13 @@ const FeaturedCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await storeApi.getCategories({ showInHomePage: true });
+        const data = await storeApi.getCategories({ showInHomePage: true, rootOnly: true });
         // Map to display format if needed, but store data should have name/imageUrl
         setCategories(data.slice(0, 5).map((cat: any) => ({
              id: cat.id,
              name: cat.name,
-             image: cat.imageUrl || "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop", // Fallback
-             link: `/products/${cat.slug || cat.id}`
+             image: cat.imageUrl || "https://placehold.co/400x600?text=No+Image", 
+             link: `/products?category=${cat.slug || cat.id}` // Link to shop page filtered by category
         })));
       } catch (error) {
         console.error("Failed to fetch featured categories", error);
@@ -42,7 +42,7 @@ const FeaturedCategories = () => {
             <Link 
               key={category.id} 
               to={category.link}
-              className="group relative h-[400px] overflow-hidden block"
+              className="group relative h-[400px] overflow-hidden block rounded-2xl"
             >
               <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"

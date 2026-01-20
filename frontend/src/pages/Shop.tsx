@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Layout from '../components/layout/Layout';
 import { ChevronDown, Loader2, Filter, X } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { storeApi } from '../api/store';
+import PageBanner from '../components/common/PageBanner';
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -237,16 +239,13 @@ const Shop = () => {
 
   return (
     <Layout>
-      <div className="bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-serif font-bold text-center mb-4">
-            {searchQuery ? `Search results for "${searchQuery}"` : 'Our Products'}
-          </h1>
-          <p className="text-gray-500 text-center max-w-xl mx-auto">
-            Discover our curated collection of premium fashion pieces.
-          </p>
-        </div>
-      </div>
+      <Helmet>
+        <title>{activeCategory === 'All' ? 'Shop' : activeCategory} | Glitter Fashion</title>
+      </Helmet>
+      <PageBanner 
+        title={searchQuery ? `Search: "${searchQuery}"` : (activeCategory === 'All' ? 'Our Collection' : activeCategory)}
+        subtitle="Discover our curated collection of premium fashion pieces designed for the modern lifestyle."
+      />
 
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col lg:flex-row gap-12">
@@ -296,7 +295,7 @@ const Shop = () => {
             ) : products.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                 {products.map((product: any) => {
-                  const primaryImage = product.images?.find((img: any) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl || '';
+                  const primaryImage = product.images?.find((img: any) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo";
                   
                   return (
                     <Link key={product.id} to={`/product/${product.slug}`} className="group">
@@ -307,7 +306,7 @@ const Shop = () => {
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                         <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform bg-gradient-to-t from-black/60 to-transparent pt-12">
-                          <button className="w-full bg-white text-black py-2 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-accent hover:text-white transition-colors">
+                          <button className="w-full bg-white text-black py-2 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-accent hover:text-black transition-colors">
                             Quick Add
                           </button>
                         </div>

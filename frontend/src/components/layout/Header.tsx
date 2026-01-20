@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShoppingBasket, Search, Menu, X, User, ChevronDown } from 'lucide-react';
+import { ShoppingBasket, Search, Menu, X, User, ChevronDown, Heart } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { storeApi } from '../../api/store';
 import { useCartStore } from '../../store/cartStore';
@@ -13,6 +13,8 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [allCategories, setAllCategories] = useState<any[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
+  const [activeMobileDropdown, setActiveMobileDropdown] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,8 +64,8 @@ const Header = () => {
     <>
       <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled || isMenuOpen || activeDropdown ? "bg-white shadow-sm py-4" : "bg-transparent py-6"
+        "fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[1440px] z-50 transition-all duration-300",
+        isScrolled || isMenuOpen || activeDropdown || activeMobileDropdown ? "bg-white shadow-sm py-4" : "bg-transparent py-6"
       )}
       onMouseLeave={() => setActiveDropdown(null)}
     >
@@ -72,7 +74,13 @@ const Header = () => {
           {/* Mobile Menu Button - keep on left for mobile */}
           <button 
             className="lg:hidden p-2 mr-4 hover:bg-black/5 rounded-full transition-colors"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+              if (isMenuOpen) {
+                 setActiveMobileDropdown(null);
+                 setExpandedMobileCategory(null);
+              }
+            }}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -141,6 +149,17 @@ const Header = () => {
               </Link>
             )}
             
+            <Link 
+              to="/wishlist" 
+              className="p-2.5 hover:bg-black/5 rounded-full transition-all duration-300 group"
+              title="My Wishlist"
+            >
+              <div className="relative">
+                <Heart size={22} className="group-hover:text-accent transition-colors text-gray-900" />
+                {/* Optional: Add badge if we have items in store */}
+              </div>
+            </Link>
+
             <div 
               className="relative group"
               onMouseEnter={() => setIsCartOpen(true)}
@@ -169,7 +188,7 @@ const Header = () => {
                     <div className="space-y-4 max-h-80 overflow-y-auto pr-2 scrollbar-hide">
                       {cart.items.slice(0, 3).map((item: any) => {
                         const product = item.variant?.product;
-                        const primaryImage = product?.images?.find((img: any) => img.isPrimary)?.imageUrl || product?.images?.[0]?.imageUrl;
+                        const primaryImage = product?.images?.find((img: any) => img.isPrimary)?.imageUrl || product?.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo";
                         return (
                           <div key={item.id} className="flex gap-4 group/item">
                             <div className="w-16 h-20 bg-gray-50 rounded-lg overflow-hidden shrink-0 border border-gray-100">
@@ -214,7 +233,7 @@ const Header = () => {
       {/* Mega Menu Dropdown */}
       <div 
         className={cn(
-          "absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-xl transition-all duration-300 overflow-hidden",
+          "hidden lg:block absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-xl transition-all duration-300 overflow-hidden",
           activeDropdown === 'Products' ? "max-h-[600px] opacity-100 visible" : "max-h-0 opacity-0 invisible"
         )}
       >
@@ -264,19 +283,87 @@ const Header = () => {
 
       {/* Mobile Menu Overlay */}
       <div className={cn(
-        "fixed inset-0 bg-white z-40 lg:hidden transition-transform duration-300 pt-24 px-6",
+        "fixed inset-0 bg-white z-40 lg:hidden transition-transform duration-300 pt-24 px-6 overflow-y-auto h-[100dvh] pb-32",
         isMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <nav className="flex flex-col space-y-6">
           {mainNav.map((link) => (
-            <Link 
-              key={link.name} 
-              to={link.path}
-              className="text-2xl font-serif font-bold hover:text-accent transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {link.name}
-            </Link>
+            <div key={link.name} className="flex flex-col">
+              {link.hasDropdown ? (
+                <>
+                  <button 
+                    onClick={() => setActiveMobileDropdown(activeMobileDropdown === link.name ? null : link.name)}
+                    className="flex items-center justify-between text-2xl font-serif font-bold hover:text-accent transition-colors w-full text-left"
+                  >
+                    {link.name}
+                    <ChevronDown size={20} className={cn("transition-transform", activeMobileDropdown === link.name ? "rotate-180" : "")} />
+                  </button>
+                  
+                  {/* Expanded Menu for Products */}
+                  <div className={cn(
+                    "overflow-hidden transition-all duration-300 space-y-4",
+                    activeMobileDropdown === link.name ? "max-h-[800px] mt-4 opacity-100" : "max-h-0 opacity-0"
+                  )}>
+                    <Link 
+                      to="/products"
+                      className="block text-sm font-black uppercase tracking-widest text-gray-900 border-l-2 border-black pl-4"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      All Products
+                    </Link>
+                    
+                    {parentCategories.map(cat => (
+                      <div key={cat.id} className="pl-4">
+                        <div className="flex items-center justify-between">
+                          <Link 
+                            to={`/products/${cat.slug}`}
+                            className="text-lg font-bold text-gray-800"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            {cat.name}
+                          </Link>
+                          {cat.children && cat.children.length > 0 && (
+                            <button 
+                              onClick={() => setExpandedMobileCategory(expandedMobileCategory === cat.slug ? null : cat.slug)}
+                              className="p-2"
+                            >
+                              <ChevronDown size={16} className={cn("transition-transform", expandedMobileCategory === cat.slug ? "rotate-180" : "")} />
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* Subcategories */}
+                        {cat.children && cat.children.length > 0 && (
+                          <div className={cn(
+                            "overflow-hidden transition-all duration-300 border-l border-gray-100 ml-2 mt-2 space-y-3",
+                            expandedMobileCategory === cat.slug ? "max-h-[500px] opacity-100 pb-2" : "max-h-0 opacity-0"
+                          )}>
+                            {cat.children.map((child: any) => (
+                              <Link 
+                                key={child.id}
+                                to={`/products/${cat.slug}/${child.slug}`}
+                                className="block text-sm text-gray-500 pl-4 hover:text-black transition-colors"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                {child.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <Link 
+                  to={link.path}
+                  className="text-2xl font-serif font-bold hover:text-accent transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              )}
+            </div>
           ))}
           <div className="pt-8 border-t border-gray-100 space-y-4">
             {isAuthenticated ? (

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 // Get API URL from env, ensuring no trailing slash
-const API_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api').replace(/\/$/, '');
+const API_URL = (import.meta.env.VITE_API_BASE_URL || '/api/store').replace(/\/$/, '');
 
 // Create axios instance
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_URL, // Path already includes /store from .env
   headers: {
     'Content-Type': 'application/json',
@@ -71,6 +71,26 @@ export const storeApi = {
 
   removeCoupon: async (sessionId?: string) => {
     const response = await api.delete('/cart/coupon', { data: { sessionId } });
+    return response.data;
+  },
+
+  getWishlist: async () => {
+    const response = await api.get('/wishlist');
+    return response.data;
+  },
+
+  addToWishlist: async (productId: string) => {
+    const response = await api.post('/wishlist', { productId });
+    return response.data;
+  },
+
+  removeFromWishlist: async (productId: string) => {
+    const response = await api.delete(`/wishlist/${productId}`);
+    return response.data;
+  },
+
+  getBanners: async () => {
+    const response = await api.get('/banners');
     return response.data;
   }
 };

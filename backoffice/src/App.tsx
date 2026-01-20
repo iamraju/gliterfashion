@@ -19,6 +19,7 @@ import PromotionsPage from './pages/dashboard/Promotions';
 import PromotionForm from './pages/dashboard/PromotionForm';
 import OrdersPage from './pages/dashboard/Orders';
 import OrderDetails from './pages/dashboard/OrderDetails';
+import OrderInvoice from './pages/dashboard/OrderInvoice';
 import CustomersPage from './pages/dashboard/Customers';
 import CustomerDetails from './pages/dashboard/CustomerDetails';
 import Brands from './pages/dashboard/Brands';
@@ -28,6 +29,14 @@ import ShippingMethodForm from './pages/dashboard/settings/ShippingMethodForm';
 import PaymentMethods from './pages/dashboard/settings/PaymentMethods';
 import PaymentMethodForm from './pages/dashboard/settings/PaymentMethodForm';
 import Settings from './pages/dashboard/Settings';
+import PagesManager from './pages/dashboard/Pages';
+import PageForm from './pages/dashboard/PageForm';
+import Faqs from './pages/dashboard/Faqs';
+import FaqForm from './pages/dashboard/FaqForm';
+import Testimonials from './pages/dashboard/Testimonials';
+import TestimonialForm from './pages/dashboard/TestimonialForm';
+import Banners from './pages/dashboard/Banners';
+import BannerForm from './pages/dashboard/BannerForm';
 
 function App() {
   return (
@@ -50,6 +59,21 @@ function App() {
               <Route path="users" element={<UsersPage />} />
               <Route path="categories" element={<CategoriesPage />} />
               <Route path="attributes" element={<AttributesPage />} />
+              <Route path="pages" element={<PagesManager />} />
+              <Route path="pages/new" element={<PageForm />} />
+              <Route path="pages/edit/:id" element={<PageForm />} />
+              <Route path="banners" element={<Banners />} />
+              <Route path="banners/new" element={<BannerForm />} />
+              <Route path="banners/:id" element={<BannerForm />} />
+
+              <Route path="pages/new" element={<PageForm />} />
+              <Route path="pages/edit/:id" element={<PageForm />} />
+              <Route path="faqs" element={<Faqs />} />
+              <Route path="faqs/new" element={<FaqForm />} />
+              <Route path="faqs/edit/:id" element={<FaqForm />} />
+              <Route path="testimonials" element={<Testimonials />} />
+              <Route path="testimonials/new" element={<TestimonialForm />} />
+              <Route path="testimonials/edit/:id" element={<TestimonialForm />} />
               <Route path="profile">
                 <Route index element={<Profile />} />
                 <Route path="edit" element={<UpdateProfile />} />
@@ -63,6 +87,7 @@ function App() {
               <Route path="promotions/edit/:id" element={<PromotionForm />} />
               <Route path="orders" element={<OrdersPage />} />
               <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="orders/:id/invoice" element={<OrderInvoice />} />
               <Route path="customers" element={<CustomersPage />} />
               <Route path="customers/:id" element={<CustomerDetails />} />
               <Route path="brands" element={<Brands />} />

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { storeApi } from '../api/store';
 import { Loader2, ArrowRight } from 'lucide-react';
+import PageBanner from '../components/common/PageBanner';
 
 const Categories = () => {
   const [categories, setCategories] = useState<any[]>([]);
@@ -25,14 +26,11 @@ const Categories = () => {
 
   return (
     <Layout>
-      <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-serif font-bold text-center mb-4">Our Collections</h1>
-          <p className="text-gray-500 text-center max-w-xl mx-auto">
-            Explore our meticulously curated categories and find the perfect pieces for your wardrobe.
-          </p>
-        </div>
-      </div>
+      <PageBanner 
+        title="Our Collections"
+        subtitle="Explore our meticulously curated categories and find the perfect pieces for your wardrobe."
+        image="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
+      />
 
       <div className="container mx-auto px-4 py-16">
         {loading ? (

@@ -1,5 +1,40 @@
 import { Eye, Heart, ShoppingBasket, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useWishlistStore } from '../../store/wishlistStore';
+import { useAuthStore } from '../../store/authStore';
+import { toast } from 'react-hot-toast';
+
+const WishlistButton = ({ productId }: { productId: string }) => {
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlistStore();
+  const { isAuthenticated } = useAuthStore();
+  const inWishlist = isInWishlist(productId);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent link navigation
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please login to add to wishlist');
+      return;
+    }
+
+    if (inWishlist) {
+      removeFromWishlist(productId);
+    } else {
+      addToWishlist(productId);
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleClick}
+      className={`w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg transition-colors ${inWishlist ? 'text-red-500 hover:bg-gray-50' : 'hover:bg-accent hover:text-white'}`} 
+      title={inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+    >
+      <Heart size={18} className={inWishlist ? "fill-current" : ""} />
+    </button>
+  );
+};
 
 // Simple interface for frontend display
 interface Product {
@@ -62,7 +97,7 @@ const ProductGrid = ({ title, subtitle, products, loading = false, viewAllLink =
         {/* Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {products.map((product) => {
-            const primaryImage = product.images?.find(img => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl;
+            const primaryImage = product.images?.find(img => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo";
             const secondImage = product.images?.[1]?.imageUrl || primaryImage;
 
             return (
@@ -92,17 +127,14 @@ const ProductGrid = ({ title, subtitle, products, loading = false, viewAllLink =
                      {/* We can calculate 'New' based on date if needed, or pass it */}
                    </div>
 
-                   {/* Actions */}
                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                      <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-black hover:text-white transition-colors" title="Add to Cart">
+                      <Link to={`/product/${product.slug}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-black hover:text-white transition-colors" title="View Details">
                         <ShoppingBasket size={18} />
-                      </button>
-                      <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-black hover:text-white transition-colors" title="Quick View">
+                      </Link>
+                      <Link to={`/product/${product.slug}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-black hover:text-white transition-colors" title="View Details">
                         <Eye size={18} />
-                      </button>
-                      <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-accent hover:text-white transition-colors" title="Wishlist">
-                        <Heart size={18} />
-                      </button>
+                      </Link>
+                      <WishlistButton productId={product.id} />
                    </div>
                 </div>
 

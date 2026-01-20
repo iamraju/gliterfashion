@@ -1,14 +1,14 @@
 import React from 'react';
 import Layout from '../components/layout/Layout';
+import PageBanner from '../components/common/PageBanner';
 
 const ContentPage = ({ title, children }: { title: string, children: React.ReactNode }) => {
   return (
     <Layout>
-       <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-serif font-bold mb-4">{title}</h1>
-        </div>
-      </div>
+       <PageBanner 
+          title={title}
+          image="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop"
+       />
       <div className="container mx-auto px-4 py-12 max-w-3xl">
         <div className="prose prose-lg mx-auto">
           {children}

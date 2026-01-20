@@ -16,8 +16,16 @@ import Account from './pages/profile/Account';
 import Orders from './pages/profile/Orders';
 import OrderDetails from './pages/profile/OrderDetails';
 import Addresses from './pages/profile/Addresses';
+import PageDetail from './pages/PageDetail';
+import FaqPage from './pages/Faq';
+import EsewaSuccess from './pages/EsewaSuccess';
+import EsewaFailure from './pages/EsewaFailure';
+import Wishlist from './pages/Wishlist';
+import PayPalSuccess from './pages/PayPalSuccess';
+import PayPalCancel from './pages/PayPalCancel';
 
 import { Helmet } from 'react-helmet-async';
+
 
 function App() {
   const appName = import.meta.env.VITE_APP_NAME || 'Glitter Fashion';
@@ -50,7 +58,15 @@ function App() {
         <Route path="/auth/login" element={<Auth />} />
         <Route path="/auth/register" element={<Auth />} />
         <Route path="/checkout" element={<Checkout />} />
+        
+        <Route path="/checkout/esewa/success" element={<EsewaSuccess />} />
+        <Route path="/checkout/esewa/failure" element={<EsewaFailure />} />
+        <Route path="/checkout/paypal/success" element={<PayPalSuccess />} />
+        <Route path="/checkout/paypal/cancel" element={<PayPalCancel />} />
+        <Route path="/pages/:slug" element={<PageDetail />} />
+        <Route path="/faq" element={<FaqPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/profile" element={<Account />} />
         <Route path="/profile/orders" element={<Orders />} />
         <Route path="/profile/orders/:id" element={<OrderDetails />} />

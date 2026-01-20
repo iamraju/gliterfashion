@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import Layout from '../components/layout/Layout';
 import HeroSlider from '../components/home/HeroSlider';
 import FeaturedCategories from '../components/home/FeaturedCategories';
@@ -33,6 +34,9 @@ const Home = () => {
 
   return (
     <Layout>
+      <Helmet>
+        <title>Home | Glitter Fashion</title>
+      </Helmet>
       <HeroSlider />
       
       {/* Featured Products */}

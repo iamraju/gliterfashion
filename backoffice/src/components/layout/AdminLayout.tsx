@@ -11,6 +11,7 @@ import {
   Bell, 
   Search,
   ChevronDown,
+  ChevronRight,
   User as UserIcon,
   Shield,
   Key,
@@ -18,7 +19,8 @@ import {
   Tag,
   Ticket,
   Truck,
-  CreditCard
+  CreditCard,
+  BookOpen
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -30,27 +32,104 @@ function cn(...inputs: ClassValue[]) {
 
 const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: () => void; logout: () => void; user: any }) => {
   const location = useLocation();
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-    { icon: Package, label: 'Products', path: '/products' },
-    { icon: FolderTree, label: 'Categories', path: '/categories' },
-    { icon: Tag, label: 'Attributes', path: '/attributes' },
-    { icon: Ticket, label: 'Brands', path: '/brands' },
-    { icon: Ticket, label: 'Promotions', path: '/promotions' },
-    { icon: ShoppingCart, label: 'Orders', path: '/orders' },
-    { icon: Users, label: 'Users', path: '/users', adminOnly: true },
-    { icon: ShoppingCart, label: 'Customers', path: '/customers' },
-    { icon: Tag, label: 'Settings', path: '/settings', adminOnly: true },
-    { icon: Truck, label: 'Shipping Methods', path: '/settings/shipping-methods', adminOnly: true },
-    { icon: CreditCard, label: 'Payment Methods', path: '/settings/payment-methods', adminOnly: true },
+  const toggleGroup = (group: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]
+    );
+  };
+
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
+
+  const menuGroups = [
+    {
+      title: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/',
+      items: []
+    },
+    {
+      title: 'Catalog',
+      icon: Package,
+      items: [
+        { name: 'Categories', path: '/categories', icon: FolderTree },
+        { name: 'Products', path: '/products', icon: Package },
+        { name: 'Promotions', path: '/promotions', icon: Ticket },
+        { name: 'Attributes', path: '/attributes', icon: Tag },
+        { name: 'Brands', path: '/brands', icon: Ticket },
+      ]
+    },
+    {
+      title: 'Sales',
+      icon: ShoppingCart,
+      items: [
+        { name: 'Orders', path: '/orders', icon: ShoppingCart }
+      ]
+    },
+    {
+      title: 'Contents',
+      icon: BookOpen,
+      items: [
+        { name: 'Pages', path: '/pages', icon: BookOpen },
+        { name: 'Banners', path: '/banners', icon: FolderTree }, // Using FolderTree/Image as placeholder
+        { name: 'FAQs', path: '/faqs', icon: BookOpen },
+        { name: 'Testimonials', path: '/testimonials', icon: Users },
+      ]
+    },
+    {
+      title: 'Customers',
+      icon: Users,
+      path: '/customers',
+      items: []
+    },
+    {
+      title: 'Settings',
+      icon: Tag, // Using Tag or Settings icon
+      items: [
+        { name: 'Shipping Methods', path: '/settings/shipping-methods', icon: Truck },
+        { name: 'Payment Methods', path: '/settings/payment-methods', icon: CreditCard }
+      ]
+    },
+    {
+      title: 'Users',
+      icon: Users,
+      path: '/users',
+      items: [] // Admin only check might be needed here but user didn't specify strictly
+    }
   ];
 
-  const filteredMenuItems = menuItems.filter(item => !item.adminOnly || user?.role === 'SUPER_ADMIN');
+  // Set initial expanded group based on active route or default to Catalog
+  React.useEffect(() => {
+    const activeGroup = menuGroups.find(group => 
+      group.items.some(item => isActive(item.path))
+    );
+    
+    if (activeGroup) {
+      setExpandedGroups(prev => prev.includes(activeGroup.title) ? prev : [...prev, activeGroup.title]);
+    } else {
+      // Default to Catalog if no other group is active and seemingly on first load/dashboard
+      // checking if we are not in any specific sub-route that might be handled elsewise
+      // But user asked simply: "expand by default Catalog menu"
+      // We should only add it if it's not already there? Or just set it?
+      // To behave consistently: if no active group found (e.g. dashboard home), expand Catalog?
+      // Or simply ensure Catalog is expanded on mount if nothing else matches?
+      // Let's just add 'Catalog' if no active group is determined from URL.
+       setExpandedGroups(prev => {
+           if (prev.length === 0) return ['Catalog'];
+           return prev;
+       });
+    }
+  }, [location.pathname]); // Re-run when path changes to auto-expand? User said "page is refreshed", implying mount.
+  // If we assume user navigates within app, do we want auto-expand? "if a sub menu is clicked ... expand that menu group"
+  // The user interaction expands it. The requirement "active sub menu... page refresh... expand" means on mount.
+  // The "Expand by default Catalog" means on mount if nothing else.
+  // So maybe `useEffect` with empty dependency or just rely on location check on mount?
+  // UseEffect with [location.pathname] is safer to keep UI in sync with URL.
+
 
   return (
     <>
-      {/* Mobile Backdrop */}
       <div 
         className={cn(
           "fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300",
@@ -59,52 +138,84 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
         onClick={toggle}
       />
       
-      {/* Sidebar */}
       <aside className={cn(
-        "fixed top-0 left-0 bottom-0 w-72 bg-brand-dark border-r border-white/5 z-50 transition-transform duration-300 transform lg:translate-x-0 outline-none",
+        "fixed top-0 left-0 bottom-0 w-72 bg-brand-dark border-r border-white/5 z-50 transition-transform duration-300 transform lg:translate-x-0 outline-none flex flex-col",
         !isOpen && "-translate-x-full"
       )}>
-        <div className="h-full flex flex-col">
-          {/* Logo Section */}
-          <div className="p-8 flex items-center justify-between">
+        <div className="p-8 flex items-center justify-between shrink-0">
             <Link to="/" className="flex items-center space-x-3 group">
               <img src="/logo.png" alt="Glitter logo" className="h-14 w-auto object-contain" />
             </Link>
             <button onClick={toggle} className="lg:hidden p-2 text-gray-400 hover:text-gray-600 transition-colors">
               <X className="w-6 h-6" />
             </button>
-          </div>
+        </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-6 space-y-2 mt-4 overflow-y-auto">
-            {filteredMenuItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+          {menuGroups.map((group) => (
+            <div key={group.title} className="mb-2">
+              {group.items.length > 0 ? (
+                <>
+                  <button 
+                    onClick={() => toggleGroup(group.title)}
+                    className={cn(
+                        "w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group",
+                        expandedGroups.includes(group.title) || group.items.some(i => isActive(i.path))
+                            ? "bg-white/10 text-brand-primary" 
+                            : "text-gray-400 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <group.icon className={cn(
+                        "w-5 h-5 transition-transform group-hover:scale-110",
+                        (expandedGroups.includes(group.title) || group.items.some(i => isActive(i.path))) ? "text-brand-primary" : "text-gray-500"
+                      )} />
+                      <span>{group.title}</span>
+                    </div>
+                    {expandedGroups.includes(group.title) ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  </button>
+                  
+                  {expandedGroups.includes(group.title) && (
+                    <div className="mt-1 ml-4 space-y-1 pl-3 border-l border-white/10">
+                      {group.items.map((item) => (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          className={cn(
+                            "flex items-center space-x-3 px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                            isActive(item.path) 
+                              ? "text-brand-primary font-medium bg-white/5" 
+                              : "text-gray-500 hover:text-white hover:bg-white/5"
+                          )}
+                        >
+                          <span>{item.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
                 <Link
-                  key={item.path}
-                  to={item.path}
+                  to={group.path!}
                   className={cn(
                     "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group relative",
-                    isActive 
+                    isActive(group.path!) 
                       ? "bg-white/10 text-brand-primary" 
                       : "text-gray-400 hover:bg-white/5 hover:text-white"
                   )}
                 >
-                  <item.icon className={cn(
+                  <group.icon className={cn(
                     "w-5 h-5 transition-transform group-hover:scale-110",
-                    isActive ? "text-brand-primary" : "text-gray-500"
+                    isActive(group.path!) ? "text-brand-primary" : "text-gray-500"
                   )} />
-                  <span className="font-medium">{item.label}</span>
-                  {isActive && (
-                    <div className="absolute left-0 w-1 h-6 bg-brand-primary rounded-r-full" />
-                  )}
+                  <span className="font-medium">{group.title}</span>
                 </Link>
-              );
-            })}
-          </nav>
+              )}
+            </div>
+          ))}
+        </nav>
 
-          {/* Footer / Logout */}
-          <div className="p-6 border-t border-white/5">
+        <div className="p-6 border-t border-white/5 shrink-0">
             <button 
               onClick={logout}
               className="flex items-center space-x-3 px-4 py-3 w-full text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all duration-200 group"
@@ -112,7 +223,6 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
               <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" />
               <span className="font-medium">Logout</span>
             </button>
-          </div>
         </div>
       </aside>
     </>

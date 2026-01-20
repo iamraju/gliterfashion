@@ -132,7 +132,10 @@ const OrderDetails: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="inline-flex items-center px-4 py-2 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition-all shadow-sm">
+          <button 
+            onClick={() => window.open(`/orders/${order.id}/invoice`, '_blank')}
+            className="inline-flex items-center px-4 py-2 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition-all shadow-sm"
+          >
             <Printer className="w-4 h-4 mr-2" />
             Print Invoice
           </button>

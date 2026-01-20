@@ -30,6 +30,8 @@ class UsersService {
                 email: true,
                 firstName: true,
                 lastName: true,
+                phone: true,
+                gender: true,
                 role: true,
                 createdAt: true,
                 sellerProfile: true,
@@ -58,6 +60,10 @@ class UsersService {
             userUpdateData.lastName = data.lastName;
         if (data.email)
             userUpdateData.email = data.email;
+        if (data.phone !== undefined)
+            userUpdateData.phone = data.phone;
+        if (data.gender !== undefined)
+            userUpdateData.gender = data.gender;
         if (data.role)
             userUpdateData.role = data.role;
         if (data.status)

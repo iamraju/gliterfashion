@@ -29,6 +29,8 @@ export declare class UsersService {
         role: import(".prisma/client").$Enums.Role;
         id: string;
         createdAt: Date;
+        phone: string | null;
+        gender: string | null;
         addresses: {
             type: import(".prisma/client").$Enums.AddressType;
             city: string;
@@ -37,12 +39,13 @@ export declare class UsersService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            phone: string;
             userId: string | null;
             fullName: string;
-            phone: string;
             addressLine1: string;
             addressLine2: string | null;
             postalCode: string;
+            countryCode: string | null;
             isDefault: boolean;
         }[];
         sellerProfile: {

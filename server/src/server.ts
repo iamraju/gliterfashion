@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+
+// Ensure .env is loaded from the project root (server directory)
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 import app from './app';
 

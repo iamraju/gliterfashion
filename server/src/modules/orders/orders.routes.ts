@@ -8,8 +8,10 @@ const ordersController = new OrdersController();
 
 router.use(authenticate);
 
+router.get('/stats', ordersController.getDashboardStats);
 router.get('/', ordersController.getAllOrders);
 router.get('/:id', ordersController.getOrder);
 router.patch('/:id/status', authorize(['SUPER_ADMIN', 'SELLER']), ordersController.updateOrderStatus);
+router.post('/verify-payment', ordersController.verifyPayment);
 
 export default router;

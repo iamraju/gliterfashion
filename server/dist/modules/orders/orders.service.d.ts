@@ -22,6 +22,7 @@ export declare class OrdersService {
         createdAt: Date;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.OrderStatus;
+        paymentMethod: string | null;
         userId: string | null;
         orderNumber: string;
         guestEmail: string | null;
@@ -32,7 +33,6 @@ export declare class OrdersService {
         discountAmount: import("@prisma/client-runtime-utils").Decimal;
         totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-        paymentMethod: string | null;
         shippingAddressId: string;
         billingAddressId: string;
         notes: string | null;
@@ -68,12 +68,13 @@ export declare class OrdersService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            phone: string;
             userId: string | null;
             fullName: string;
-            phone: string;
             addressLine1: string;
             addressLine2: string | null;
             postalCode: string;
+            countryCode: string | null;
             isDefault: boolean;
         };
         shippingAddress: {
@@ -84,12 +85,13 @@ export declare class OrdersService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            phone: string;
             userId: string | null;
             fullName: string;
-            phone: string;
             addressLine1: string;
             addressLine2: string | null;
             postalCode: string;
+            countryCode: string | null;
             isDefault: boolean;
         };
     } & {
@@ -97,6 +99,7 @@ export declare class OrdersService {
         createdAt: Date;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.OrderStatus;
+        paymentMethod: string | null;
         userId: string | null;
         orderNumber: string;
         guestEmail: string | null;
@@ -107,7 +110,6 @@ export declare class OrdersService {
         discountAmount: import("@prisma/client-runtime-utils").Decimal;
         totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
-        paymentMethod: string | null;
         shippingAddressId: string;
         billingAddressId: string;
         notes: string | null;
@@ -117,6 +119,7 @@ export declare class OrdersService {
         createdAt: Date;
         updatedAt: Date;
         status: import(".prisma/client").$Enums.OrderStatus;
+        paymentMethod: string | null;
         userId: string | null;
         orderNumber: string;
         guestEmail: string | null;
@@ -127,7 +130,26 @@ export declare class OrdersService {
         discountAmount: import("@prisma/client-runtime-utils").Decimal;
         totalAmount: import("@prisma/client-runtime-utils").Decimal;
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
+        shippingAddressId: string;
+        billingAddressId: string;
+        notes: string | null;
+    }>;
+    cancelOrder(id: string, userId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: import(".prisma/client").$Enums.OrderStatus;
         paymentMethod: string | null;
+        userId: string | null;
+        orderNumber: string;
+        guestEmail: string | null;
+        guestPhone: string | null;
+        subtotal: import("@prisma/client-runtime-utils").Decimal;
+        taxAmount: import("@prisma/client-runtime-utils").Decimal;
+        shippingAmount: import("@prisma/client-runtime-utils").Decimal;
+        discountAmount: import("@prisma/client-runtime-utils").Decimal;
+        totalAmount: import("@prisma/client-runtime-utils").Decimal;
+        paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
         shippingAddressId: string;
         billingAddressId: string;
         notes: string | null;

@@ -8,6 +8,7 @@ export declare class CategoriesService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            gender: import(".prisma/client").$Enums.CategoryGender | null;
             name: string;
             slug: string;
             description: string | null;
@@ -17,12 +18,12 @@ export declare class CategoriesService {
             showInNavBar: boolean;
             showInHomePage: boolean;
             sortOrder: number;
-            gender: import(".prisma/client").$Enums.CategoryGender | null;
         } | null;
         children: {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            gender: import(".prisma/client").$Enums.CategoryGender | null;
             name: string;
             slug: string;
             description: string | null;
@@ -32,12 +33,12 @@ export declare class CategoriesService {
             showInNavBar: boolean;
             showInHomePage: boolean;
             sortOrder: number;
-            gender: import(".prisma/client").$Enums.CategoryGender | null;
         }[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        gender: import(".prisma/client").$Enums.CategoryGender | null;
         name: string;
         slug: string;
         description: string | null;
@@ -47,12 +48,12 @@ export declare class CategoriesService {
         showInNavBar: boolean;
         showInHomePage: boolean;
         sortOrder: number;
-        gender: import(".prisma/client").$Enums.CategoryGender | null;
     }>;
     create(data: z.infer<typeof createCategorySchema>): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        gender: import(".prisma/client").$Enums.CategoryGender | null;
         name: string;
         slug: string;
         description: string | null;
@@ -62,12 +63,12 @@ export declare class CategoriesService {
         showInNavBar: boolean;
         showInHomePage: boolean;
         sortOrder: number;
-        gender: import(".prisma/client").$Enums.CategoryGender | null;
     }>;
     update(id: string, data: z.infer<typeof updateCategorySchema>): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        gender: import(".prisma/client").$Enums.CategoryGender | null;
         name: string;
         slug: string;
         description: string | null;
@@ -77,7 +78,6 @@ export declare class CategoriesService {
         showInNavBar: boolean;
         showInHomePage: boolean;
         sortOrder: number;
-        gender: import(".prisma/client").$Enums.CategoryGender | null;
     }>;
     delete(id: string): Promise<{
         message: string;

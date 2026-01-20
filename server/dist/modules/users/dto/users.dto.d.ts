@@ -19,6 +19,8 @@ export declare const updateUserSchema: z.ZodObject<{
     firstName: z.ZodOptional<z.ZodString>;
     lastName: z.ZodOptional<z.ZodString>;
     email: z.ZodOptional<z.ZodString>;
+    phone: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    gender: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     role: z.ZodOptional<z.ZodEnum<{
         SUPER_ADMIN: "SUPER_ADMIN";
         SELLER: "SELLER";
@@ -39,6 +41,8 @@ export declare const updateProfileSchema: z.ZodObject<{
     firstName: z.ZodOptional<z.ZodString>;
     lastName: z.ZodOptional<z.ZodString>;
     email: z.ZodOptional<z.ZodString>;
+    phone: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    gender: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, z.core.$strip>;
 export declare const changePasswordSchema: z.ZodObject<{
     currentPassword: z.ZodString;

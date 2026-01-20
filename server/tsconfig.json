@@ -45,5 +45,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "prisma.config.ts", "dist", "prisma"]
+  "include": ["src"],
+  "exclude": ["node_modules", "prisma.config.ts", "dist", "prisma", "scripts"]
 }

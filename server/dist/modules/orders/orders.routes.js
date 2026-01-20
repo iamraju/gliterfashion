@@ -6,8 +6,10 @@ const auth_middleware_1 = require("../../middleware/auth.middleware");
 const router = (0, express_1.Router)();
 const ordersController = new orders_controller_1.OrdersController();
 router.use(auth_middleware_1.authenticate);
+router.get('/stats', ordersController.getDashboardStats);
 router.get('/', ordersController.getAllOrders);
 router.get('/:id', ordersController.getOrder);
 router.patch('/:id/status', (0, auth_middleware_1.authorize)(['SUPER_ADMIN', 'SELLER']), ordersController.updateOrderStatus);
+router.post('/verify-payment', ordersController.verifyPayment);
 exports.default = router;
 //# sourceMappingURL=orders.routes.js.map

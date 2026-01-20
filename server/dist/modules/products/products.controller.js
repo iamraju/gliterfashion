@@ -86,7 +86,11 @@ class ProductsController {
             }
             // 6. Handle images from req.files and combined metadata
             let images = [];
-            if (typeof bodyData.images === 'string') {
+            if (typeof bodyData.existingImages === 'string') {
+                images = JSON.parse(bodyData.existingImages);
+            }
+            else if (typeof bodyData.images === 'string') {
+                // Backward compatibility
                 images = JSON.parse(bodyData.images);
             }
             const files = req.files;
@@ -160,7 +164,11 @@ class ProductsController {
             }
             // Handle images if any
             let images = [];
-            if (typeof bodyData.images === 'string') {
+            if (typeof bodyData.existingImages === 'string') {
+                images = JSON.parse(bodyData.existingImages);
+            }
+            else if (typeof bodyData.images === 'string') {
+                // Backward compatibility
                 images = JSON.parse(bodyData.images);
             }
             const files = req.files;
@@ -177,6 +185,11 @@ class ProductsController {
                 });
                 images = [...images, ...newImages];
             }
+            // Ensure we don't save full URLs to the database
+            images = images.map((img) => ({
+                ...img,
+                imageUrl: img.imageUrl ? img.imageUrl.split('/').pop() : img.imageUrl
+            }));
             bodyData.images = images;
             const data = products_dto_1.updateProductSchema.parse(bodyData);
             const product = await productsService.update(id, data);

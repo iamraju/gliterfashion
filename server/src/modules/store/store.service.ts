@@ -172,6 +172,7 @@ export class StoreService {
     
     if (query.showInNavBar === 'true') where.showInNavBar = true;
     if (query.showInHomePage === 'true') where.showInHomePage = true;
+    if (query.rootOnly === 'true') where.parentId = null;
 
     return prisma.category.findMany({
       where,

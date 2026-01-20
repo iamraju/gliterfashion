@@ -33,11 +33,17 @@ const reviews_routes_1 = __importDefault(require("./modules/reviews/reviews.rout
 const cart_routes_1 = __importDefault(require("./modules/cart/cart.routes"));
 const checkout_routes_1 = __importDefault(require("./modules/checkout/checkout.routes"));
 const user_store_routes_1 = __importDefault(require("./modules/users/user_store.routes"));
+const settings_routes_1 = __importDefault(require("./modules/settings/settings.routes"));
+const countries_routes_1 = __importDefault(require("./routes/countries.routes"));
+const pages_routes_1 = __importDefault(require("./modules/pages/pages.routes"));
+const faqs_routes_1 = __importDefault(require("./modules/faqs/faqs.routes"));
+const testimonials_routes_1 = __importDefault(require("./modules/testimonials/testimonials.routes"));
 app.use('/api/backoffice/auth', auth_routes_1.default);
 app.use('/api/store/auth', auth_routes_1.default);
 app.use('/api/backoffice/seller', seller_routes_1.default);
 app.use('/api/backoffice/users', users_routes_1.default);
 app.use('/api/store/users', user_store_routes_1.default);
+app.use('/api/backoffice/settings', settings_routes_1.default);
 app.use('/api/backoffice/categories', categories_routes_1.default);
 app.use('/api/backoffice/attributes', attributes_routes_1.default);
 app.use('/api/backoffice/products', products_routes_1.default);
@@ -48,6 +54,17 @@ app.use('/api/store/checkout', checkout_routes_1.default);
 app.use('/api/store', store_routes_1.default);
 app.use('/api/backoffice/brands', brands_routes_1.default);
 app.use('/api/backoffice/reviews', reviews_routes_1.default);
+app.use('/api/store/countries', countries_routes_1.default);
+app.use('/api/backoffice/countries', countries_routes_1.default);
+app.use('/api/backoffice/pages', pages_routes_1.default);
+app.use('/api/store/pages', pages_routes_1.default);
+app.use('/api/backoffice/faqs', faqs_routes_1.default);
+app.use('/api/store/faqs', faqs_routes_1.default);
+app.use('/api/backoffice/testimonials', testimonials_routes_1.default);
+app.use('/api/store/testimonials', testimonials_routes_1.default);
+app.use('/api/store/settings', settings_routes_1.default);
+const upload_routes_1 = __importDefault(require("./routes/upload.routes"));
+app.use('/api/backoffice/upload', upload_routes_1.default);
 // Basic Route
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to E-commerce Backend API" });

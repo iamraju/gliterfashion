@@ -6,6 +6,9 @@ import { upload } from '../../middleware/upload.middleware';
 const router = Router();
 const settingsController = new SettingsController();
 
+// Public Settings (Must be before auth middleware)
+router.get('/public', settingsController.getPublicSettings);
+
 // Shared auth middleware
 router.use(authenticate);
 

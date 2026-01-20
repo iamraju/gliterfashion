@@ -18,17 +18,23 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
   }
 
   try {
+    // Debug logging
+    console.log('Verifying token:', token.substring(0, 10) + '...');
     const decoded = jwt.verify(token, JWT_SECRET) as any;
+    console.log('Decoded Payload:', decoded);
+
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
 
     if (!user) {
+      console.log('User not found for ID:', decoded.userId);
       res.status(401).json({ error: 'Invalid token.' });
        return;
     }
 
     req.user = user;
     next();
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Token verification failed:', error.message);
     res.status(400).json({ error: 'Invalid token.' });
   }
 };

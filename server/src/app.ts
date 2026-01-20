@@ -35,6 +35,9 @@ import checkoutRoutes from './modules/checkout/checkout.routes';
 import userStoreRoutes from './modules/users/user_store.routes';
 import settingsRoutes from './modules/settings/settings.routes';
 import countriesRoutes from './routes/countries.routes';
+import pagesRoutes from './modules/pages/pages.routes';
+import faqsRoutes from './modules/faqs/faqs.routes';
+import testimonialsRoutes from './modules/testimonials/testimonials.routes';
 
 app.use('/api/backoffice/auth', authRoutes);
 app.use('/api/store/auth', authRoutes);
@@ -54,6 +57,23 @@ app.use('/api/backoffice/brands', brandsRoutes);
 app.use('/api/backoffice/reviews', reviewsRoutes);
 app.use('/api/store/countries', countriesRoutes);
 app.use('/api/backoffice/countries', countriesRoutes);
+app.use('/api/backoffice/pages', pagesRoutes);
+app.use('/api/store/pages', pagesRoutes);
+app.use('/api/backoffice/faqs', faqsRoutes);
+app.use('/api/store/faqs', faqsRoutes);
+app.use('/api/backoffice/testimonials', testimonialsRoutes);
+app.use('/api/store/testimonials', testimonialsRoutes);
+app.use('/api/store/settings', settingsRoutes);
+
+import bannersRoutes from './modules/banners/banners.routes';
+app.use('/api/backoffice/banners', bannersRoutes); // Protected (POST/PUT/DELETE)
+app.use('/api/store/banners', bannersRoutes);      // Public (GET)
+
+import wishlistRoutes from './modules/wishlist/wishlist.routes';
+app.use('/api/store/wishlist', wishlistRoutes);
+
+import uploadRoutes from './routes/upload.routes';
+app.use('/api/backoffice/upload', uploadRoutes);
 
 // Basic Route
 app.get("/", (req, res) => {

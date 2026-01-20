@@ -38,7 +38,7 @@ const formatProductWithImages = (req, product) => {
         category: (0, exports.formatCategoryWithImage)(req, product.category),
         variants: product.variants?.map((v) => ({
             ...v,
-            attributes: v.productVariantAttribute || []
+            attributes: v.productVariantAttribute || v.attributes || []
         }))
     };
     return formatted;

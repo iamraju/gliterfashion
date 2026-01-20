@@ -18,9 +18,9 @@ export declare class ReviewsService {
         status: import(".prisma/client").$Enums.ReviewStatus;
         userId: string;
         productId: string;
+        title: string | null;
         orderItemId: string | null;
         rating: number;
-        title: string | null;
         comment: string;
         isVerifiedPurchase: boolean;
     })[]>;
@@ -31,9 +31,9 @@ export declare class ReviewsService {
         status: import(".prisma/client").$Enums.ReviewStatus;
         userId: string;
         productId: string;
+        title: string | null;
         orderItemId: string | null;
         rating: number;
-        title: string | null;
         comment: string;
         isVerifiedPurchase: boolean;
     }>;

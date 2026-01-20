@@ -19,6 +19,8 @@ exports.updateUserSchema = zod_1.z.object({
     firstName: zod_1.z.string().min(1).optional(),
     lastName: zod_1.z.string().min(1).optional(),
     email: zod_1.z.string().email().optional(),
+    phone: zod_1.z.string().nullable().optional(),
+    gender: zod_1.z.string().nullable().optional(),
     role: zod_1.z.enum(['SUPER_ADMIN', 'SELLER', 'CUSTOMER']).optional(),
     status: zod_1.z.enum(['ACTIVE', 'SUSPENDED', 'DEACTIVATED']).optional(),
     // Seller specific fields
@@ -32,6 +34,8 @@ exports.updateProfileSchema = zod_1.z.object({
     firstName: zod_1.z.string().min(1).optional(),
     lastName: zod_1.z.string().min(1).optional(),
     email: zod_1.z.string().email().optional(),
+    phone: zod_1.z.string().nullable().optional(),
+    gender: zod_1.z.string().nullable().optional(),
 });
 exports.changePasswordSchema = zod_1.z.object({
     currentPassword: zod_1.z.string().min(1),

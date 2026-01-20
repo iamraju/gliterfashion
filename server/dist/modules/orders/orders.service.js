@@ -90,6 +90,25 @@ class OrdersService {
             data: { status }
         });
     }
+    async cancelOrder(id, userId) {
+        const order = await client_1.default.order.findUnique({
+            where: { id },
+            select: { userId: true, status: true }
+        });
+        if (!order) {
+            throw new Error('Order not found');
+        }
+        if (order.userId !== userId) {
+            throw new Error('Unauthorized');
+        }
+        if (order.status !== 'PENDING') {
+            throw new Error('Order cannot be cancelled as it is already ' + order.status.toLowerCase());
+        }
+        return client_1.default.order.update({
+            where: { id },
+            data: { status: 'CANCELLED' }
+        });
+    }
 }
 exports.OrdersService = OrdersService;
 //# sourceMappingURL=orders.service.js.map

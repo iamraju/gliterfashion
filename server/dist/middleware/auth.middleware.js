@@ -14,9 +14,13 @@ const authenticate = async (req, res, next) => {
         return;
     }
     try {
+        // Debug logging
+        console.log('Verifying token:', token.substring(0, 10) + '...');
         const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET);
+        console.log('Decoded Payload:', decoded);
         const user = await client_1.default.user.findUnique({ where: { id: decoded.userId } });
         if (!user) {
+            console.log('User not found for ID:', decoded.userId);
             res.status(401).json({ error: 'Invalid token.' });
             return;
         }
@@ -24,6 +28,7 @@ const authenticate = async (req, res, next) => {
         next();
     }
     catch (error) {
+        console.error('Token verification failed:', error.message);
         res.status(400).json({ error: 'Invalid token.' });
     }
 };

@@ -68,6 +68,17 @@ export class SettingsService {
   }
 
   // Site Settings
+  async getPublicSettings() {
+    return prisma.setting.findMany({
+      where: {
+        group: {
+          in: ['GENERAL', 'SEO', 'SOCIAL', 'CONTACT']
+        }
+      },
+      orderBy: { key: 'asc' }
+    });
+  }
+
   async getAllSettings() {
     return prisma.setting.findMany({
       orderBy: { key: 'asc' }

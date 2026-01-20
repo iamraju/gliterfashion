@@ -151,6 +151,15 @@ export class SettingsController {
   }
 
   // Site Settings
+  async getPublicSettings(req: Request, res: Response) {
+    try {
+      const settings = await settingsService.getPublicSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch public settings' });
+    }
+  }
+
   async getSettings(req: Request, res: Response) {
     try {
       const settings = await settingsService.getAllSettings();

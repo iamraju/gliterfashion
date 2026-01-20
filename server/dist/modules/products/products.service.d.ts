@@ -13,6 +13,8 @@ export declare class ProductsService {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                phone: string | null;
+                gender: string | null;
                 status: import(".prisma/client").$Enums.UserStatus;
             };
         } & {
@@ -30,6 +32,7 @@ export declare class ProductsService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            gender: import(".prisma/client").$Enums.CategoryGender | null;
             name: string;
             slug: string;
             description: string | null;
@@ -39,7 +42,6 @@ export declare class ProductsService {
             showInNavBar: boolean;
             showInHomePage: boolean;
             sortOrder: number;
-            gender: import(".prisma/client").$Enums.CategoryGender | null;
         };
         images: {
             id: string;
@@ -96,6 +98,7 @@ export declare class ProductsService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            gender: import(".prisma/client").$Enums.CategoryGender | null;
             name: string;
             slug: string;
             description: string | null;
@@ -105,7 +108,6 @@ export declare class ProductsService {
             showInNavBar: boolean;
             showInHomePage: boolean;
             sortOrder: number;
-            gender: import(".prisma/client").$Enums.CategoryGender | null;
         };
         images: {
             id: string;

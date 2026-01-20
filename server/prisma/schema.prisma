@@ -23,6 +23,7 @@ model User {
   couponUsages  CouponUsage[]
   orders        Order[]
   reviews       Review[]
+  wishlist      Wishlist[]
   sellerProfile Seller?
 
   @@map("users")
@@ -70,28 +71,29 @@ model Category {
 }
 
 model Product {
-  id          String           @id @default(uuid())
-  sellerId    String?
-  brandId     String?
-  categoryId  String
-  name        String
-  slug        String           @unique
-  description String?
-  basePrice   Decimal          @db.Decimal(10, 2)
-  sku         String           @unique
-  status      ProductStatus    @default(DRAFT)
-  isFeatured  Boolean          @default(false)
-  weight      Decimal?         @db.Decimal(10, 2)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  salePrice   Decimal?         @db.Decimal(10, 2)
-  images      ProductImage[]
-  variants    ProductVariant[]
-  category    Category         @relation(fields: [categoryId], references: [id])
-  seller      Seller?          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  brand       Brand?           @relation(fields: [brandId], references: [id])
-  reviews     Review[]
-  coupons     Coupon[]         @relation("CouponToProduct")
+  id            String           @id @default(uuid())
+  sellerId      String?
+  brandId       String?
+  categoryId    String
+  name          String
+  slug          String           @unique
+  description   String?
+  basePrice     Decimal          @db.Decimal(10, 2)
+  sku           String           @unique
+  status        ProductStatus    @default(DRAFT)
+  isFeatured    Boolean          @default(false)
+  weight        Decimal?         @db.Decimal(10, 2)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  salePrice     Decimal?         @db.Decimal(10, 2)
+  images        ProductImage[]
+  variants      ProductVariant[]
+  category      Category         @relation(fields: [categoryId], references: [id])
+  seller        Seller?          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  brand         Brand?           @relation(fields: [brandId], references: [id])
+  reviews       Review[]
+  wishlistItems Wishlist[]
+  coupons       Coupon[]         @relation("CouponToProduct")
 
   @@map("products")
 }
@@ -287,6 +289,9 @@ model Order {
   shippingAddressId String
   billingAddressId  String
   notes             String?
+  shippingNotes     String?
+  paymentNotes      String?
+  paymentProof      String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   couponUsage       CouponUsage[]
@@ -463,4 +468,70 @@ model Setting {
   updatedAt   DateTime @updatedAt
 
   @@map("settings")
+}
+
+model Page {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text // HTML content
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pages")
+}
+
+model Faq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String   @db.Text
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  name      String
+  role      String?
+  content   String   @db.Text
+  rating    Int      @default(5)
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlists")
+}
+
+model Banner {
+  id         String   @id @default(uuid())
+  title      String
+  subtitle   String?
+  imageUrl   String
+  link       String?
+  buttonText String?  @default("Shop Now")
+  align      String   @default("left") // left, center, right
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("banners")
 }

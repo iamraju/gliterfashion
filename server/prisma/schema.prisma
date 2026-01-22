@@ -222,24 +222,23 @@ model Country {
 }
 
 model Address {
-  id             String      @id @default(uuid())
-  userId         String?
-  type           AddressType
-  fullName       String
-  phone          String
-  addressLine1   String
-  addressLine2   String?
-  city           String
-  state          String
-  postalCode     String
-  country        String
-  countryCode    String?
-  isDefault      Boolean     @default(false)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  user           User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingOrders  Order[]     @relation("BillingAddress")
-  shippingOrders Order[]     @relation("ShippingAddress")
+  id           String      @id @default(uuid())
+  userId       String?
+  type         AddressType
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  countryCode  String?
+  isDefault    Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // billingOrders and shippingOrders relations removed as Order now stores address directly
 
   @@map("addresses")
 }
@@ -273,32 +272,46 @@ model CartItem {
 }
 
 model Order {
-  id                String        @id @default(uuid())
-  orderNumber       String        @unique
-  userId            String?
-  guestEmail        String?
-  guestPhone        String?
-  status            OrderStatus   @default(PENDING)
-  subtotal          Decimal       @db.Decimal(10, 2)
-  taxAmount         Decimal       @db.Decimal(10, 2)
-  shippingAmount    Decimal       @db.Decimal(10, 2)
-  discountAmount    Decimal       @db.Decimal(10, 2)
-  totalAmount       Decimal       @db.Decimal(10, 2)
-  paymentStatus     PaymentStatus @default(PENDING)
-  paymentMethod     String?
-  shippingAddressId String
-  billingAddressId  String
-  notes             String?
-  shippingNotes     String?
-  paymentNotes      String?
-  paymentProof      String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  couponUsage       CouponUsage[]
-  orderItems        OrderItem[]
-  billingAddress    Address       @relation("BillingAddress", fields: [billingAddressId], references: [id])
-  shippingAddress   Address       @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
-  user              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String        @id @default(uuid())
+  orderNumber          String        @unique
+  userId               String?
+  guestEmail           String?
+  guestPhone           String?
+  status               OrderStatus   @default(PENDING)
+  subtotal             Decimal       @db.Decimal(10, 2)
+  taxAmount            Decimal       @db.Decimal(10, 2)
+  shippingAmount       Decimal       @db.Decimal(10, 2)
+  discountAmount       Decimal       @db.Decimal(10, 2)
+  totalAmount          Decimal       @db.Decimal(10, 2)
+  paymentStatus        PaymentStatus @default(PENDING)
+  paymentMethod        String?
+  shippingFullName     String?
+  shippingPhone        String?
+  shippingAddressLine1 String?
+  shippingAddressLine2 String?
+  shippingCity         String?
+  shippingState        String?
+  shippingPostalCode   String?
+  shippingCountry      String?
+
+  billingFullName     String?
+  billingPhone        String?
+  billingAddressLine1 String?
+  billingAddressLine2 String?
+  billingCity         String?
+  billingState        String?
+  billingPostalCode   String?
+  billingCountry      String?
+
+  notes         String?
+  shippingNotes String?
+  paymentNotes  String?
+  paymentProof  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  couponUsage   CouponUsage[]
+  orderItems    OrderItem[]
+  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("orders")
 }

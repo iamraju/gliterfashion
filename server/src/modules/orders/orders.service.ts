@@ -51,8 +51,7 @@ export class OrdersService {
         where: { id },
         include: {
             user: { select: { id: true, email: true, firstName: true, lastName: true } },
-            shippingAddress: true,
-            billingAddress: true,
+
             orderItems: {
                 include: {
                     variant: {
@@ -69,9 +68,35 @@ export class OrdersService {
         }
     });
 
+
     if (!order) {
         throw new Error('Order not found');
     }
+
+    // Synthesize Address Objects from flat fields for frontend compatibility
+    const orderWithAddresses = {
+        ...order,
+        shippingAddress: {
+            fullName: order.shippingFullName,
+            phone: order.shippingPhone,
+            addressLine1: order.shippingAddressLine1,
+            addressLine2: order.shippingAddressLine2,
+            city: order.shippingCity,
+            state: order.shippingState,
+            postalCode: order.shippingPostalCode,
+            country: order.shippingCountry,
+        },
+        billingAddress: {
+             fullName: order.billingFullName,
+             phone: order.billingPhone,
+             addressLine1: order.billingAddressLine1,
+             addressLine2: order.billingAddressLine2,
+             city: order.billingCity,
+             state: order.billingState,
+             postalCode: order.billingPostalCode,
+             country: order.billingCountry,
+        }
+    };
 
     // Access Control
     if (role === 'CUSTOMER' && order.userId !== userId) {
@@ -89,9 +114,11 @@ export class OrdersService {
          // For now returning full order but aware that sensitive info might be visible.
          // Let's filter items in memory to be safe if strict seller isolation is needed.
          order.orderItems = order.orderItems.filter(item => item.sellerId === sellerId);
+         // Filter for synthesized object too
+         orderWithAddresses.orderItems = orderWithAddresses.orderItems.filter(item => item.sellerId === sellerId);
     }
 
-    return order;
+    return orderWithAddresses;
   }
 
   async updateStatus(id: string, status: OrderStatus) {

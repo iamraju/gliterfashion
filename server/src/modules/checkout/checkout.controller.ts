@@ -64,28 +64,12 @@ export class CheckoutController {
 
       // 4. Create Order in Transaction
       const order = await prisma.$transaction(async (tx) => {
-        // Create addresses
-        const sAddr = await tx.address.create({
-          data: {
-            ...shippingAddress,
-            userId: userId || null,
-            type: "SHIPPING",
-          },
-        });
-
-        const bAddr = billingAddress
-          ? await tx.address.create({
-              data: {
-                ...billingAddress,
-                userId: userId || null,
-                type: "BILLING",
-              },
-            })
-          : sAddr;
-
         const orderNumber = `ORD-${Date.now()}-${Math.floor(
           Math.random() * 1000
         )}`;
+
+        // Prepare billing address (default to shipping if not provided)
+        const finalBillingAddress = billingAddress || shippingAddress;
 
         const newOrder = await tx.order.create({
           data: {
@@ -99,8 +83,27 @@ export class CheckoutController {
             discountAmount: 0,
             totalAmount,
             paymentMethod: paymentMethod.title,
-            shippingAddressId: sAddr.id,
-            billingAddressId: bAddr.id,
+            
+            // Shipping Address Fields
+            shippingFullName: shippingAddress.fullName,
+            shippingPhone: shippingAddress.phone,
+            shippingAddressLine1: shippingAddress.addressLine1,
+            shippingAddressLine2: shippingAddress.addressLine2 || null,
+            shippingCity: shippingAddress.city,
+            shippingState: shippingAddress.state,
+            shippingPostalCode: shippingAddress.postalCode,
+            shippingCountry: shippingAddress.country,
+
+            // Billing Address Fields
+            billingFullName: finalBillingAddress.fullName,
+            billingPhone: finalBillingAddress.phone,
+            billingAddressLine1: finalBillingAddress.addressLine1,
+            billingAddressLine2: finalBillingAddress.addressLine2 || null,
+            billingCity: finalBillingAddress.city,
+            billingState: finalBillingAddress.state,
+            billingPostalCode: finalBillingAddress.postalCode,
+            billingCountry: finalBillingAddress.country,
+
             notes,
             shippingNotes: req.body.shippingNotes,
             paymentNotes: req.body.paymentNotes,
@@ -179,14 +182,14 @@ export class CheckoutController {
           type: "khalti",
           productIdentity: order.orderNumber,
           productName: `Order ${order.orderNumber}`,
-          productUrl: `http://localhost:5173/orders/${order.orderNumber}`,
+          productUrl: `${process.env.FRONTEND_URL || 'http://localhost:3001'}/checkout/paypal/success`,
           amount: totalAmount * 100, 
         };
       } else if (methodTitle.includes("paypal")) {
         // PayPal Integration
         const config = await paymentService.getPayPalConfig();
-        const returnUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout/paypal/success`;
-        const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout/paypal/cancel`;
+        const returnUrl = `${process.env.FRONTEND_URL || 'http://localhost:3001'}/checkout/paypal/success`;
+        const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:3001'}/checkout/paypal/cancel`;
         
         try {
           const createOrderResult = await paymentService.createPayPalOrder(
@@ -217,9 +220,9 @@ export class CheckoutController {
         // Mollie Integration
         const mollieConfig = await paymentService.getMollieConfig();
         // Mollie webhook and redirect URLs
-        const redirectUrl = `${process.env.CLIENT_URL || 'http://localhost:3001'}/checkout/mollie/verify?orderId=${order.orderNumber}`; // Frontend intermediate page or direct capture?
+        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3001'}/checkout/mollie/verify?orderId=${order.orderNumber}`; // Frontend intermediate page or direct capture?
         // Better: Frontend success page which calls backend verify
-        const webhookUrl = `${process.env.BACKEND_URL || 'https://api.glitterfashion.com'}/api/checkout/mollie/webhook`; // Must be public for webhook
+        const webhookUrl = `${process.env.BACKEND_URL || 'http://localhost:4000'}/api/checkout/mollie/webhook`; // Must be public for webhook
         
         try {
              const payment = await paymentService.createMolliePayment(

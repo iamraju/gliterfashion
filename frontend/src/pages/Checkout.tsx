@@ -341,7 +341,7 @@ const Checkout = () => {
               <Link to="/products" className="bg-black text-white py-4 rounded-2xl font-bold hover:bg-accent transition-all duration-300">
                 Continue Shopping
               </Link>
-              <Link to={isAuthenticated ? "/orders" : "/"} className="bg-gray-50 text-gray-900 py-4 rounded-2xl font-bold hover:bg-gray-100 transition-all duration-300">
+              <Link to={isAuthenticated ? "/profile/orders" : "/"} className="bg-gray-50 text-gray-900 py-4 rounded-2xl font-bold hover:bg-gray-100 transition-all duration-300">
                 {isAuthenticated ? 'View My Orders' : 'Back to Home'}
               </Link>
             </div>

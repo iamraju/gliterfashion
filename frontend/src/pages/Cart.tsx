@@ -20,7 +20,7 @@ const Cart = () => {
 
   const cartItems = cart?.items || [];
   const subtotal = cartItems.reduce((acc: number, item: any) => {
-    const price = parseFloat(item.variant?.price || item.priceAtAdd);
+    const price = parseFloat(item.priceAtAdd || item.variant?.price);
     return acc + (price * item.quantity);
   }, 0);
 
@@ -162,7 +162,7 @@ const Cart = () => {
               {cartItems.map((item: any) => {
                 const product = item.variant?.product;
                 const primaryImage = product?.images?.find((img: any) => img.isPrimary)?.imageUrl || product?.images?.[0]?.imageUrl || "https://placehold.co/600x400?text=No+Photo";
-                const price = parseFloat(item.variant?.price || item.priceAtAdd);
+                const price = parseFloat(item.priceAtAdd || item.variant?.price);
                 const sizeAttribute = item.variant?.productVariantAttribute?.find((a: any) => a.attribute.name === 'Size');
 
                 return (

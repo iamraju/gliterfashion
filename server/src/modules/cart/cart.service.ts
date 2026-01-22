@@ -53,15 +53,27 @@ export class CartService {
     });
 
     const variant = await prisma.productVariant.findUnique({
-      where: { id: variantId }
+      where: { id: variantId },
+      include: { product: true }
     });
 
     if (!variant) throw new Error('Variant not found');
 
+    // Determine price using Product Sale Price if available and valid
+    // We assume if salePrice is set on Product, it applies. 
+    // Ideally we should check if salePrice < price, but user said "take the sale price".
+    let finalPrice = variant.price;
+    if (variant.product.salePrice && Number(variant.product.salePrice) > 0) {
+        finalPrice = variant.product.salePrice;
+    }
+
     if (existingItem) {
       return prisma.cartItem.update({
         where: { id: existingItem.id },
-        data: { quantity: existingItem.quantity + quantity }
+        data: { 
+          quantity: existingItem.quantity + quantity,
+          priceAtAdd: finalPrice // Update price to current effective price
+        }
       });
     }
 
@@ -70,7 +82,7 @@ export class CartService {
         cartId,
         productVariantId: variantId,
         quantity,
-        priceAtAdd: variant.price
+        priceAtAdd: finalPrice
       }
     });
   }
@@ -141,7 +153,11 @@ export class CartService {
       include: {
         items: {
           include: {
-            variant: true
+            variant: {
+              include: {
+                product: true
+              }
+            }
           }
         }
       }
@@ -151,7 +167,13 @@ export class CartService {
 
     // Calculate cart subtotal
     const subtotal = cart.items.reduce((acc, item) => {
-      const price = parseFloat(item.variant?.price?.toString() || item.priceAtAdd.toString());
+      let price = parseFloat(item.variant?.price?.toString() || item.priceAtAdd.toString());
+      
+      // Check for product sale price
+      if (item.variant?.product?.salePrice && Number(item.variant.product.salePrice) > 0) {
+          price = parseFloat(item.variant.product.salePrice.toString());
+      }
+      
       return acc + (price * item.quantity);
     }, 0);
 

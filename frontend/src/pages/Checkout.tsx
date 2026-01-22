@@ -257,7 +257,7 @@ const Checkout = () => {
 
   const cartItems = cart?.items || [];
   const subtotal = cartItems.reduce((acc: number, item: any) => {
-    const price = parseFloat(item.variant?.price || item.priceAtAdd);
+    const price = parseFloat(item.priceAtAdd || item.variant?.price);
     return acc + (price * item.quantity);
   }, 0);
   
@@ -869,7 +869,7 @@ const Checkout = () => {
                       <h4 className="text-sm font-bold line-clamp-1 mb-1">{item.variant?.product?.name}</h4>
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">Qty: {item.quantity}</span>
-                        <span className="font-bold">{formatCurrency(parseFloat(item.variant?.price || item.priceAtAdd) * item.quantity)}</span>
+                        <span className="font-bold">{formatCurrency(parseFloat(item.priceAtAdd || item.variant?.price) * item.quantity)}</span>
                       </div>
                     </div>
                   </div>

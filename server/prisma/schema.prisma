@@ -548,3 +548,14 @@ model Banner {
 
   @@map("banners")
 }
+
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  fullName  String
+  email     String
+  phone     String?
+  message   String?
+  createdAt DateTime @default(now())
+
+  @@map("contact_submissions")
+}

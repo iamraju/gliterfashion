@@ -37,6 +37,7 @@ import Testimonials from './pages/dashboard/Testimonials';
 import TestimonialForm from './pages/dashboard/TestimonialForm';
 import Banners from './pages/dashboard/Banners';
 import BannerForm from './pages/dashboard/BannerForm';
+import ContactSubmissions from './pages/dashboard/ContactSubmissions';
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
               <Route path="orders/:id/invoice" element={<OrderInvoice />} />
               <Route path="customers" element={<CustomersPage />} />
               <Route path="customers/:id" element={<CustomerDetails />} />
+              <Route path="contact-submissions" element={<ContactSubmissions />} />
               <Route path="brands" element={<Brands />} />
               <Route path="brands/new" element={<BrandForm />} />
               <Route path="brands/:id" element={<BrandForm />} />

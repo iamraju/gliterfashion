@@ -4,8 +4,10 @@ import { OrdersService } from './orders.service';
 import { OrderStatus } from '@prisma/client';
 import prisma from '../../database/client';
 import { formatProductWithImages } from '../../common/utils/image';
+import { EmailService } from '../email/email.service';
 
 const ordersService = new OrdersService();
+const emailService = new EmailService();
 
 export class OrdersController {
   async getAllOrders(req: Request, res: Response) {
@@ -125,6 +127,23 @@ export class OrdersController {
       }
 
       const order = await ordersService.updateStatus(id, status);
+      
+      // Send Email Notification
+      // Resolve email
+      let recipientEmail = order.guestEmail;
+      if (!recipientEmail && order.userId) {
+          const user = await prisma.user.findUnique({ 
+              where: { id: order.userId },
+              select: { email: true } 
+          });
+          recipientEmail = user?.email || null;
+      }
+      
+      if (recipientEmail) {
+          // Fire and forget, but log error inside service
+          emailService.sendOrderStatusUpdate(recipientEmail, order);
+      }
+
       res.json(order);
     } catch (error: any) {
       res.status(400).json({ error: error.message });

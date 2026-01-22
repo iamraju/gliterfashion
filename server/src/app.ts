@@ -75,6 +75,10 @@ app.use('/api/store/wishlist', wishlistRoutes);
 import uploadRoutes from './routes/upload.routes';
 app.use('/api/backoffice/upload', uploadRoutes);
 
+import contactRoutes from './modules/contact/contact.routes';
+app.use('/api/store/contact', contactRoutes); // Public POST
+app.use('/api/backoffice/contact', contactRoutes); // Admin GET/DELETE
+
 // Basic Route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to E-commerce Backend API" });

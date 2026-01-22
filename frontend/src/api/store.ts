@@ -92,5 +92,15 @@ export const storeApi = {
   getBanners: async () => {
     const response = await api.get('/banners');
     return response.data;
+  },
+
+  submitContactForm: async (data: { fullName: string; email: string; phone?: string; message?: string }) => {
+    const response = await api.post('/contact', data);
+    return response.data;
+  },
+
+  getPublicSettings: async () => {
+    const response = await api.get('/settings/public');
+    return response.data;
   }
 };

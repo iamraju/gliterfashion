@@ -3,8 +3,10 @@ import prisma from "../../database/client";
 import { v4 as uuidv4 } from "uuid";
 
 import { PaymentService } from "../payment/payment.service";
+import { EmailService } from "../email/email.service";
 
 const paymentService = new PaymentService();
+const emailService = new EmailService();
 
 export class CheckoutController {
   async placeOrder(req: Request, res: Response) {
@@ -49,9 +51,10 @@ export class CheckoutController {
       // 3. Calculate totals
       let subtotal = 0;
       cart.items.forEach((item) => {
-        const itemPrice = parseFloat(
-          item.variant.price?.toString() || item.priceAtAdd.toString()
-        );
+        // Determine effective price: Price At Add > Product Sale Price (if not set in cart) > Variant Price
+        // Since we now update priceAtAdd on cart interactions, we should trust it first.
+        let itemPrice = parseFloat(item.priceAtAdd?.toString() || item.variant.price?.toString());
+        
         subtotal += itemPrice * item.quantity;
       });
 
@@ -117,21 +120,24 @@ export class CheckoutController {
                 productName: item.variant.product.name,
                 variantDetails: {},
                 quantity: item.quantity,
-                unitPrice: item.variant.price || item.priceAtAdd,
+                unitPrice: item.priceAtAdd || item.variant.price,
                 totalPrice:
                   parseFloat(
-                    item.variant.price?.toString() || item.priceAtAdd.toString()
+                    item.priceAtAdd?.toString() || item.variant.price?.toString()
                   ) * item.quantity,
                 commissionRate: 10,
                 commissionAmount:
                   parseFloat(
-                    item.variant.price?.toString() || item.priceAtAdd.toString()
+                    item.priceAtAdd?.toString() || item.variant.price?.toString()
                   ) *
                   item.quantity *
                   0.1,
               })),
             },
           },
+          include: {
+            orderItems: true
+          }
         });
 
         // Clear Cart ONLY if not redirecting to Payment Gateway (Bank Transfer is manual, so clear card)
@@ -251,6 +257,33 @@ export class CheckoutController {
               type: "bank_transfer",
               message: "Order placed successfully. Please wait for verification."
           };
+      }
+
+
+      // Send Order Confirmation Email (Fire and forget or await, but catch error inside service)
+      // Determine email to send to: userId -> user email (need to fetch?) or guestEmail
+      // But we have userId, we might need to fetch user email if not in order object directly (order has guestEmail only if guest)
+      // Actually order model has userId. 
+      // If userId is present, we should find the user email. 
+      // Or we can rely on what we have. 
+      // Wait, let's fetch user email if needed or use guestEmail.
+      // Better: pass everything we know. The email logic in service uses 'email' arg.
+      
+      let recipientEmail = order.guestEmail;
+      if (!recipientEmail && order.userId) {
+          // Fetch user email if not guest. 
+          // We can optimize by fetching user email earlier or assuming it's in req.user token if valid
+          // But req.user might not have email.
+          // Let's quickly fetch it or modify logic. 
+          // For now, let's assume if it's a registered user, we might want to fetch it.
+          // OR, simply: The checkout payload might have email in billing/shipping? No.
+          // Let's do a quick lookup if missing.
+          const user = await prisma.user.findUnique({ where: { id: order.userId } });
+          recipientEmail = user?.email || null;
+      }
+      
+      if (recipientEmail) {
+          await emailService.sendOrderConfirmation(recipientEmail, order, order.orderItems);
       }
 
       res.status(201).json({ order, paymentData });

@@ -4,6 +4,7 @@ import Layout from '../components/layout/Layout';
 import PageBanner from '../components/common/PageBanner';
 
 import Breadcrumbs from '../components/common/Breadcrumbs';
+import { storeApi } from '../api/store';
 
 const ContentPage = ({ title, children }: { title: string, children: React.ReactNode }) => {
   return (
@@ -44,7 +45,59 @@ export const About = () => (
   </ContentPage>
 );
 
-export const Contact = () => (
+export const Contact = () => {
+  const [loading, setLoading] = React.useState(false);
+  const [settings, setSettings] = React.useState<any[]>([]);
+  const [formData, setFormData] = React.useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+
+  const { submitContactForm, getPublicSettings } = storeApi;
+  // Using require to avoid import issues if not exported yet, but ideally should be import.
+  // Actually, import is better since I just updated the file.
+  // Assuming implicit import available or I will fix if needed. 
+  // Wait, I can't inject imports easily with replace. I'll use the existing import if possible or just use inline logic if I could...
+  // But I need to fetch settings. 
+  
+  React.useEffect(() => {
+    const fetchSettings = async () => {
+        try {
+            const data = await getPublicSettings();
+            setSettings(data);
+        } catch (error) {
+            console.error("Failed to fetch settings", error);
+        }
+    };
+    fetchSettings();
+  }, []);
+
+  const getSetting = (key: string, fallback: string) => {
+      const setting = settings.find(s => s.key.toLowerCase() === key.toLowerCase());
+      return setting ? setting.value : fallback;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await submitContactForm(formData);
+      alert('Message sent successfully!');
+      setFormData({ fullName: '', email: '', phone: '', message: '' });
+    } catch (error) {
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  return (
   <ContentPage title="Contact Us">
      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
        <div>
@@ -55,35 +108,77 @@ export const Contact = () => (
          <div className="space-y-4">
            <div>
              <span className="block font-bold">Email</span>
-             <a href="mailto:support@glitterfashion.com" className="text-accent hover:underline">support@glitterfashion.com</a>
+             <a href={`mailto:${getSetting('supportEmail', 'support@glitterfashion.com')}`} className="text-accent hover:underline">
+                {getSetting('supportEmail', 'support@glitterfashion.com')}
+             </a>
            </div>
            <div>
              <span className="block font-bold">Phone</span>
-             <a href="tel:+15551234567" className="text-accent hover:underline">+1 (555) 123-4567</a>
+             <a href={`tel:${getSetting('telephone', '+1 (555) 123-4567')}`} className="text-accent hover:underline">
+                {getSetting('telephone', '+1 (555) 123-4567')}
+             </a>
            </div>
            <div>
              <span className="block font-bold">Address</span>
-             <p className="text-gray-600">123 Fashion Ave, Design District, NY 10001</p>
+             <p className="text-gray-600">{getSetting('address', '123 Fashion Ave, Design District, NY 10001')}</p>
            </div>
          </div>
        </div>
-       <form className="space-y-4">
+       <form className="space-y-4" onSubmit={handleSubmit}>
          <div>
-           <label className="block text-sm font-bold mb-1">Name</label>
-           <input type="text" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" placeholder="Your Name" />
+           <label className="block text-sm font-bold mb-1">Full Name <span className="text-red-500">*</span></label>
+           <input 
+             type="text" 
+             name="fullName"
+             required
+             value={formData.fullName}
+             onChange={handleChange}
+             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
+             placeholder="Your Name" 
+           />
          </div>
          <div>
-           <label className="block text-sm font-bold mb-1">Email</label>
-           <input type="email" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" placeholder="Your Email" />
+           <label className="block text-sm font-bold mb-1">Email <span className="text-red-500">*</span></label>
+           <input 
+             type="email" 
+             name="email"
+             required
+             value={formData.email}
+             onChange={handleChange}
+             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
+             placeholder="Your Email" 
+            />
+         </div>
+         <div>
+           <label className="block text-sm font-bold mb-1">Phone</label>
+           <input 
+             type="tel" 
+             name="phone"
+             value={formData.phone}
+             onChange={handleChange}
+             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
+             placeholder="Your Phone (Optional)" 
+           />
          </div>
          <div>
            <label className="block text-sm font-bold mb-1">Message</label>
-           <textarea className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none h-32" placeholder="How can we help?"></textarea>
+           <textarea 
+             name="message"
+             value={formData.message}
+             onChange={handleChange}
+             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none h-32" 
+             placeholder="How can we help?"
+           ></textarea>
          </div>
-         <button className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-900 transition-colors">
-           Send Message
+         <button 
+           type="submit"
+           disabled={loading}
+           className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
+         >
+           {loading ? 'Sending...' : 'Send Message'}
          </button>
        </form>
      </div>
   </ContentPage>
-);
+  );
+};

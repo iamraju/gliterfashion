@@ -25,7 +25,7 @@ const Footer = () => {
     fetchData();
   }, []);
 
-  const getSetting = (key: string) => settings.find(s => s.key === key)?.value || '';
+  const getSetting = (key: string) => settings.find(s => s.key.toLowerCase() === key.toLowerCase())?.value || '';
 
   return (
     <footer className="bg-black text-white pt-16 pb-8">
@@ -76,7 +76,8 @@ const Footer = () => {
             <ul className="space-y-3 text-gray-400 text-sm">
               <li><Link to="/track-order" className="hover:text-white transition-colors">Track Order</Link></li>
               <li><Link to="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
-              {pages.map((page: any) => (
+              <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+              {pages.filter((p: any) => p.slug !== 'contact').map((page: any) => (
                  <li key={page.id}>
                     <Link to={`/pages/${page.slug}`} className="hover:text-white transition-colors">{page.title}</Link>
                  </li>
@@ -97,15 +98,15 @@ const Footer = () => {
             <ul className="space-y-4 text-gray-400 text-sm">
               <li className="flex items-start space-x-3">
                 <MapPin size={18} className="shrink-0 mt-0.5" />
-                <span>{getSetting('contactAddress') || '123 Fashion Ave, Design District, New York, NY'}</span>
+                <span>{getSetting('address') || '123 Fashion Ave, Design District, New York, NY'}</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone size={18} />
-                <span>{getSetting('contactPhone') || '+1 (555) 123-4567'}</span>
+                <span>{getSetting('telephone') || '+1 (555) 123-4567'}</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail size={18} />
-                <span>{getSetting('contactEmail') || getSetting('supportEmail') || 'support@glitterfashion.com'}</span>
+                <span>{getSetting('supportEmail') || getSetting('supportEmail') || 'support@glitterfashion.com'}</span>
               </li>
             </ul>
           </div>

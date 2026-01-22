@@ -21,7 +21,8 @@ import {
   Truck,
   CreditCard,
   BookOpen,
-  Settings
+  Settings,
+  MessageSquare
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -81,7 +82,12 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
     {
       title: 'Customers',
       icon: Users,
-      path: '/customers',
+      items: []
+    },
+    {
+      title: 'Contact Form',
+      icon: MessageSquare,
+      path: '/contact-submissions',
       items: []
     },
     {
@@ -328,11 +334,15 @@ const AdminLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} logout={logout} user={user} />
+      <div className="print:hidden">
+        <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} logout={logout} user={user} />
+      </div>
       
-      <main className="flex-1 lg:ml-72 flex flex-col min-w-0">
-        <Header toggleSidebar={toggleSidebar} user={user} logout={logout} />
-        <div className="p-4 lg:p-8 flex-1">
+      <main className="flex-1 lg:ml-72 flex flex-col min-w-0 print:ml-0">
+        <div className="print:hidden">
+          <Header toggleSidebar={toggleSidebar} user={user} logout={logout} />
+        </div>
+        <div className="p-4 lg:p-8 flex-1 print:p-0">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Outlet />
           </div>

@@ -10,7 +10,14 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
+// Add request interceptor to attach token if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 export const storeApi = {
   getProducts: async (params?: any) => {
     const response = await api.get('/products', { params });

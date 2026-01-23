@@ -68,8 +68,11 @@ const Auth = () => {
         navigate('/dashboard');
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login failed';
-      if (message.toLowerCase().includes('email')) {
+      const message = error.response?.data?.error || error.response?.data?.message || 'Login failed';
+      
+      if (message.toLowerCase().includes('verify')) {
+        setLoginErrors({ form: message });
+      } else if (message.toLowerCase().includes('email')) {
         setLoginErrors({ email: message });
       } else if (message.toLowerCase().includes('password')) {
         setLoginErrors({ password: message });
@@ -92,9 +95,14 @@ const Auth = () => {
         navigate('/dashboard');
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Registration failed';
-      if (message.toLowerCase().includes('email')) {
+      const message = error.response?.data?.error || error.response?.data?.message || 'Registration failed';
+      
+      if (message.toLowerCase().includes('verify')) {
+        setRegisterErrors({ form: message });
+      } else if (message.toLowerCase().includes('email')) {
         setRegisterErrors({ email: message });
+      } else if (message.toLowerCase().includes('password')) {
+         setRegisterErrors({ password: message });
       } else {
         setRegisterErrors({ form: message });
       }

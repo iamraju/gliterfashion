@@ -26,6 +26,9 @@ model User {
   wishlist      Wishlist[]
   sellerProfile Seller?
 
+  isEmailVerified        Boolean @default(false)
+  emailVerificationToken String?
+
   @@map("users")
 }
 

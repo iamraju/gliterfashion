@@ -82,6 +82,7 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
     {
       title: 'Customers',
       icon: Users,
+      path: '/customers',
       items: []
     },
     {

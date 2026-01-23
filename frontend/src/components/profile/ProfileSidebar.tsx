@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { User, Package, MapPin, LogOut, ChevronRight, LayoutGrid } from 'lucide-react';
+import { User, Package, MapPin, LogOut, ChevronRight, LayoutGrid, Heart } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 const ProfileSidebar = () => {
@@ -8,6 +8,7 @@ const ProfileSidebar = () => {
   const navItems = [
     { label: 'Overview', path: '/dashboard', icon: LayoutGrid },
     { label: 'My Orders', path: '/profile/orders', icon: Package },
+    { label: 'My Wishlist', path: '/wishlist', icon: Heart },
     { label: 'My Profile', path: '/profile', icon: User },
     { label: 'Addresses', path: '/profile/addresses', icon: MapPin },
   ];

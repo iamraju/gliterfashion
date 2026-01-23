@@ -24,6 +24,16 @@ export class CheckoutController {
 
       const userId = (req as any).user?.userId;
 
+      // Check Email Verification for logged-in users
+      if (userId) {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (user && user.role === 'CUSTOMER' && !user.isEmailVerified) {
+           return res.status(403).json({ 
+             message: "Please verify your email address to place an order. Check your inbox for the verification link." 
+           });
+        }
+      }
+
       // ... (existing validation logic for cart, methods) ...
       // 1. Find the cart
       const cart = await prisma.cart.findUnique({

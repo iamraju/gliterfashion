@@ -9,7 +9,9 @@ import { useEffect } from 'react';
 import { useCartStore } from './store/cartStore';
 import { useAuthStore } from './store/authStore';
 import { Toaster } from 'react-hot-toast';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import Auth from './pages/Auth';
+import VerifyEmail from './pages/auth/VerifyEmail';
 import Checkout from './pages/Checkout';
 import Dashboard from './pages/Dashboard';
 import Account from './pages/profile/Account';
@@ -58,6 +60,7 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/auth/login" element={<Auth />} />
         <Route path="/auth/register" element={<Auth />} />
+        <Route path="/auth/verify-email" element={<VerifyEmail />} />
         <Route path="/checkout" element={<Checkout />} />
         
         <Route path="/checkout/esewa/success" element={<EsewaSuccess />} />
@@ -66,12 +69,14 @@ function App() {
         <Route path="/checkout/paypal/cancel" element={<PayPalCancel />} />
         <Route path="/pages/:slug" element={<PageDetail />} />
         <Route path="/faq" element={<FaqPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/profile" element={<Account />} />
-        <Route path="/profile/orders" element={<Orders />} />
-        <Route path="/profile/orders/:id" element={<OrderDetails />} />
-        <Route path="/profile/addresses" element={<Addresses />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/profile" element={<Account />} />
+          <Route path="/profile/orders" element={<Orders />} />
+          <Route path="/profile/orders/:id" element={<OrderDetails />} />
+          <Route path="/profile/addresses" element={<Addresses />} />
+        </Route>
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/contact" element={<Contact />} />

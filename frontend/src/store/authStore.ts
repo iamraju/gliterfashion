@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
           toast.success(`Welcome back, ${user.firstName}!`);
         } catch (error: any) {
           set({ loading: false });
-          toast.error(error.response?.data?.message || 'Login failed');
+          toast.error(error.response?.data?.error || error.response?.data?.message || 'Login failed');
           throw error;
         }
       },
@@ -62,6 +62,18 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true });
         try {
           const response = await axios.post(`${API_URL}/register`, { ...data, role: 'CUSTOMER' });
+          
+          if (response.data.requiresVerification) {
+            set({ loading: false });
+            toast.success(response.data.message, { duration: 6000 });
+            // Optional: Redirect to login or show a specific UI state
+            // For now, let's redirect to login after a short delay or let user click
+            setTimeout(() => {
+               window.location.href = '/auth/login';
+            }, 2000);
+            return;
+          }
+
           const { token, user } = response.data;
           
           set({ token, user, isAuthenticated: true });
@@ -75,7 +87,7 @@ export const useAuthStore = create<AuthState>()(
           toast.success(`Welcome to Glitter, ${user.firstName}!`);
         } catch (error: any) {
           set({ loading: false });
-          toast.error(error.response?.data?.message || 'Registration failed');
+          toast.error(error.response?.data?.error || error.response?.data?.message || 'Registration failed');
           throw error;
         }
       },
@@ -84,6 +96,7 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null, isAuthenticated: false });
         localStorage.removeItem('token');
         toast.success('Logged out successfully');
+        window.location.href = '/auth';
       },
 
       initAuth: () => {

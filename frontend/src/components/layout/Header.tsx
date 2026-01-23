@@ -131,6 +131,7 @@ const Header = () => {
                    <Link to="/dashboard" className="block w-full px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-accent rounded-xl transition-all">My Dashboard</Link>
                    <Link to="/profile" className="block w-full px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-accent rounded-xl transition-all">My Profile</Link>
                    <Link to="/orders" className="block w-full px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-accent rounded-xl transition-all">My Orders</Link>
+                   <Link to="/wishlist" className="block w-full px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-accent rounded-xl transition-all">My Wishlist</Link>
                    <button 
                     onClick={logout}
                     className="block w-full px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-xl transition-all text-left"
@@ -382,6 +383,13 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   My Profile
+                </Link>
+                <Link 
+                  to="/wishlist"
+                  className="flex items-center space-x-3 text-lg font-bold uppercase tracking-widest text-gray-900"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  My Wishlist
                 </Link>
                 <button 
                   onClick={() => {

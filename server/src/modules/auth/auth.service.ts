@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../../database/client';
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from './dto/auth.dto';
 import { z } from 'zod';
+import { EmailService } from '../../common/services/EmailService';
 
 const SALT_ROUNDS = 10;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -58,6 +59,48 @@ export class AuthService {
       { expiresIn: '1d' }
     );
 
+    // Email Verification Logic
+    if (result.role === 'CUSTOMER') {
+      const verificationToken = jwt.sign(
+        { userId: result.id, type: 'email-verification' },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      await prisma.user.update({
+        where: { id: result.id },
+        data: { emailVerificationToken: verificationToken }
+      });
+
+      const emailService = new EmailService();
+      const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/verify-email?token=${verificationToken}`;
+      
+      try {
+        await emailService.sendEmail({
+          to: result.email,
+          subject: 'Verify your email - Glitter Fashion',
+          html: emailService.generateVerificationTemplate(verificationLink)
+        });
+      } catch (err) {
+        console.error('Failed to send verification email:', err);
+      }
+
+      return {
+        message: 'Registration successful. Please check your email to verify your account.',
+        requiresVerification: true
+      };
+    }
+
+    // For other roles (if any) or if we decided to auto-login them
+    // But currently only CUSTOMER/SELLER register here. 
+    // If SELLER, maybe we still auto-login or same? 
+    // Let's keep auto-login for non-customers if needed, or enforce for all? 
+    // User said "register as customer". 
+    // Existing code returned token for everyone.
+    // I will return token only if NOT customer (e.g. Seller?) or just enforce for all?
+    // Let's check logic: if result.role === 'CUSTOMER' we return above.
+    
+    // For others (Seller):
     return { 
       token, 
       user: { 
@@ -65,7 +108,8 @@ export class AuthService {
         email: result.email, 
         role: result.role, 
         firstName: result.firstName, 
-        lastName: result.lastName 
+        lastName: result.lastName,
+        isEmailVerified: false 
       } 
     };
   }
@@ -79,6 +123,10 @@ export class AuthService {
     const isValid = await bcrypt.compare(data.password, user.password);
     if (!isValid) {
       throw new Error('Invalid email or password');
+    }
+
+    if (user.role === 'CUSTOMER' && !user.isEmailVerified) {
+      throw new Error('Please verify your email address to login. Check your inbox for the verification link.');
     }
 
     const token = jwt.sign(
@@ -123,6 +171,27 @@ export class AuthService {
       return { message: 'Password has been reset successfully.' };
     } catch (error) {
       throw new Error('Invalid or expired token');
+    }
+  }
+
+  async verifyEmail(token: string) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      if (decoded.type !== 'email-verification') {
+        throw new Error('Invalid token type');
+      }
+
+      await prisma.user.update({
+        where: { id: decoded.userId },
+        data: { 
+          isEmailVerified: true,
+          emailVerificationToken: null
+        }
+      });
+      
+      return { message: 'Email verified successfully' };
+    } catch (error) {
+      throw new Error('Invalid or expired verification token');
     }
   }
 }

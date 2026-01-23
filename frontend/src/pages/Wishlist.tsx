@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
-import Layout from '../components/layout/Layout';
+import ProfileLayout from '../components/profile/ProfileLayout';
 import { useWishlistStore } from '../store/wishlistStore';
 import { useCartStore } from '../store/cartStore';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Trash2, Heart } from 'lucide-react';
-import PageBanner from '../components/common/PageBanner';
 import { formatCurrency } from '../utils/currency';
+import { toast } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 const Wishlist = () => {
   const { items, loading, fetchWishlist, removeFromWishlist } = useWishlistStore();
@@ -17,84 +18,116 @@ const Wishlist = () => {
 
   const handleMoveToBag = async (item: any) => {
     if (item.product?.variants?.length > 0) {
-       // Just add the first variant for now or redirect to product page
-       // Better UX: redirect to product page if variants exist
-       // But for "Move to Bag", let's try to add if single variant
        if (item.product.variants.length === 1) {
           await addItem(item.product.variants[0].id, 1);
-          await removeFromWishlist(item.productId);
+          toast.success('Added to Bag');
        } else {
-         // Redirect
          window.location.href = `/product/${item.product.slug}`;
        }
     }
   };
 
+  const handleRemove = (productId: string) => {
+    Swal.fire({
+      title: 'Remove from Wishlist?',
+      text: "Are you sure you want to remove this item?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#000',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, remove it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        removeFromWishlist(productId);
+      }
+    });
+  };
+
   if (loading) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-24 text-center">
-          <p className="animate-pulse">Loading your wishlist...</p>
+      <ProfileLayout breadcrumbs={[{ label: 'My Account', path: '/dashboard' }, { label: 'My Wishlist' }]}>
+        <div className="flex justify-center items-center h-64">
+           <p className="animate-pulse">Loading your wishlist...</p>
         </div>
-      </Layout>
+      </ProfileLayout>
     );
   }
 
   return (
-    <Layout>
-      <PageBanner 
-        title="My Wishlist"
-        subtitle="Save your favorite pieces for later."
-        image="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop"
-      />
-      <div className="container mx-auto px-4 py-12">
-
-        {items.length === 0 ? (
-          <div className="text-center py-20 bg-gray-50 rounded-[48px]">
-            <Heart size={48} className="mx-auto text-gray-300 mb-4" />
-            <h2 className="text-xl font-bold mb-2">Your wishlist is empty</h2>
-            <p className="text-gray-500 mb-8">Save items you love to buy later.</p>
-            <Link to="/products" className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-accent transition-colors">
-              Explore Collection
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {items.map((item: any) => {
-              const product = item.product;
-              const image = product?.images?.find((i: any) => i.isPrimary)?.imageUrl || product?.images?.[0]?.imageUrl;
-              
-              return (
-                <div key={item.id} className="group relative bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300">
-                  <div className="aspect-[3/4] bg-gray-100 relative overflow-hidden">
-                    <img src={image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <button 
-                      onClick={() => removeFromWishlist(item.productId)}
-                      className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur rounded-full hover:bg-black hover:text-white transition-colors"
-                      title="Remove"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
-                    <p className="text-sm text-gray-500 mb-4">{formatCurrency(product.basePrice)}</p>
-                    
-                    <button 
-                      onClick={() => handleMoveToBag(item)}
-                      className="w-full py-3 bg-gray-900 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ShoppingBag size={14} />
-                      {product.variants?.length > 1 ? 'Select Options' : 'Add to Bag'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+    <ProfileLayout breadcrumbs={[{ label: 'My Account', path: '/dashboard' }, { label: 'My Wishlist' }]}>
+      <div className="mb-8">
+        <h1 className="text-3xl font-serif font-bold mb-2">My Wishlist</h1>
+        <p className="text-gray-500">Save your favorite pieces for later.</p>
       </div>
-    </Layout>
+
+      {items.length === 0 ? (
+        <div className="text-center py-20 bg-gray-50 rounded-[32px] border border-dashed border-gray-200">
+          <Heart size={48} className="mx-auto text-gray-300 mb-4" />
+          <h2 className="text-xl font-bold mb-2">Your wishlist is empty</h2>
+          <p className="text-gray-500 mb-8">Save items you love to buy later.</p>
+          <Link to="/products" className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-accent transition-colors">
+            Explore Collection
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest text-gray-500">Product</th>
+                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest text-gray-500">Price</th>
+                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-widest text-gray-500 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {items.map((item: any) => {
+                  const product = item.product;
+                  const image = product?.images?.find((i: any) => i.isPrimary)?.imageUrl || product?.images?.[0]?.imageUrl;
+                  
+                  return (
+                    <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-4">
+                          <Link to={`/product/${product.slug}`} className="w-16 h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0 block">
+                            <img src={image} alt={product.name} className="w-full h-full object-cover" />
+                          </Link>
+                          <div>
+                            <Link to={`/product/${product.slug}`} className="font-bold text-gray-900 hover:text-accent transition-colors line-clamp-1">{product.name}</Link>
+                            <p className="text-xs text-gray-400 mt-1">{product.category?.name}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-sm font-bold text-gray-900">
+                        {formatCurrency(product.basePrice)}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-3">
+                          <button 
+                            onClick={() => handleRemove(item.productId)}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            title="Remove"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                          <button 
+                            onClick={() => handleMoveToBag(item)}
+                            className="px-4 py-2 bg-black text-white text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-accent transition-colors flex items-center gap-2"
+                          >
+                            <ShoppingBag size={14} />
+                            {product.variants?.length > 1 ? 'Select' : 'Add'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </ProfileLayout>
   );
 };
 

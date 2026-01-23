@@ -24,6 +24,21 @@ export class AuthController {
     try {
       const data = loginSchema.parse(req.body);
       const result = await authService.login(data);
+
+      // Security Check: Role Segregation based on Endpoint
+      const isBackoffice = req.baseUrl.includes('backoffice');
+      const isStore = req.baseUrl.includes('store');
+
+      if (isBackoffice) {
+         if (result.user.role === 'CUSTOMER') {
+             throw new Error('Access denied. Customers cannot access backoffice.');
+         }
+      } else if (isStore) {
+         if (result.user.role !== 'CUSTOMER') {
+             throw new Error('Access denied. Administrators cannot login to store frontend.');
+         }
+      }
+
       res.json(result);
     } catch (error: any) {
        if (error.constructor.name === 'ZodError') {
@@ -59,6 +74,21 @@ export class AuthController {
         return;
       }
       res.status(400).json({ error: error.message }); 
+    }
+  }
+
+  async verifyEmail(req: Request, res: Response) {
+    try {
+      const { token } = req.query;
+      
+      if (!token || typeof token !== 'string') {
+        return res.status(400).json({ message: 'Token is required' });
+      }
+
+      const result = await authService.verifyEmail(token);
+      res.json(result);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
     }
   }
 }

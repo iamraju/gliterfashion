@@ -1,14 +1,21 @@
 import { Request, Response } from 'express';
 import { WishlistService } from './wishlist.service';
+import { formatProductWithImages } from '../../common/utils/image';
 
 const wishlistService = new WishlistService();
 
 export class WishlistController {
   async getWishlist(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.userId;
+      const userId = (req as any).user.id;
       const items = await wishlistService.getWishlist(userId);
-      res.json(items);
+      
+      const formattedItems = items.map((item: any) => ({
+        ...item,
+        product: formatProductWithImages(req, item.product)
+      }));
+
+      res.json(formattedItems);
     } catch (error) {
       console.error('Get wishlist error:', error);
       res.status(500).json({ message: 'Failed to fetch wishlist' });
@@ -17,7 +24,7 @@ export class WishlistController {
 
   async addToWishlist(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.userId;
+      const userId = (req as any).user.id;
       const { productId } = req.body;
       
       if (!productId) {
@@ -25,7 +32,13 @@ export class WishlistController {
       }
 
       const item = await wishlistService.addToWishlist(userId, productId);
-      res.json(item);
+      
+      const formattedItem = {
+        ...item,
+        product: formatProductWithImages(req, (item as any).product)
+      };
+
+      res.json(formattedItem);
     } catch (error) {
       console.error('Add to wishlist error:', error);
       res.status(500).json({ message: 'Failed to add to wishlist' });
@@ -34,7 +47,7 @@ export class WishlistController {
 
   async removeFromWishlist(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.userId;
+      const userId = (req as any).user.id;
       const { productId } = req.params;
 
       if (!productId) {

@@ -39,6 +39,7 @@ interface DashboardStats {
   totalOrders: number;
   totalSales: number;
   avgOrderValue: number;
+  totalCustomers: number;
   dailySales: { date: string; sales: number }[];
   monthlySales: { month: string; sales: number }[];
 }
@@ -121,7 +122,7 @@ const DashboardHome = () => {
                     </div>
                     <div>
                         <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">Customers</p>
-                        <h3 className="text-2xl font-bold text-gray-900">--</h3>
+                        <h3 className="text-2xl font-bold text-gray-900">{stats?.totalCustomers || 0}</h3>
                     </div>
                 </div>
             </div>

@@ -116,18 +116,6 @@ const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: ()
     
     if (activeGroup) {
       setExpandedGroups(prev => prev.includes(activeGroup.title) ? prev : [...prev, activeGroup.title]);
-    } else {
-      // Default to Catalog if no other group is active and seemingly on first load/dashboard
-      // checking if we are not in any specific sub-route that might be handled elsewise
-      // But user asked simply: "expand by default Catalog menu"
-      // We should only add it if it's not already there? Or just set it?
-      // To behave consistently: if no active group found (e.g. dashboard home), expand Catalog?
-      // Or simply ensure Catalog is expanded on mount if nothing else matches?
-      // Let's just add 'Catalog' if no active group is determined from URL.
-       setExpandedGroups(prev => {
-           if (prev.length === 0) return ['Catalog'];
-           return prev;
-       });
     }
   }, [location.pathname]); // Re-run when path changes to auto-expand? User said "page is refreshed", implying mount.
   // If we assume user navigates within app, do we want auto-expand? "if a sub menu is clicked ... expand that menu group"

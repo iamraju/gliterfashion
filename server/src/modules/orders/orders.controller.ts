@@ -281,10 +281,13 @@ export class OrdersController {
             sales: parseFloat(row.sales) || 0
         }));
 
+        const totalCustomers = await prisma.user.count({ where: { role: 'CUSTOMER' } });
+
         res.json({
             totalOrders,
             totalSales,
             avgOrderValue,
+            totalCustomers,
             dailySales,
             monthlySales
         });

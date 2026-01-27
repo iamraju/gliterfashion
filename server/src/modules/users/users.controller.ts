@@ -20,7 +20,7 @@ export class UsersController {
 
   async getUser(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('User ID required');
       const user = await usersService.findById(id);
       res.json(user);
@@ -53,7 +53,7 @@ export class UsersController {
 
   async updateUser(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('User ID required');
       const data = updateUserSchema.parse(req.body);
       const updatedUser = await usersService.update(id, data);
@@ -73,7 +73,7 @@ export class UsersController {
 
   async deleteUser(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('User ID required');
       await usersService.delete(id);
       res.json({ message: 'User deleted successfully' });

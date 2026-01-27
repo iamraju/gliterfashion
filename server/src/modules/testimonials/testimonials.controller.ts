@@ -17,7 +17,7 @@ export class TestimonialsController {
 
   async getById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       const item = await service.getById(id);
       if (!item) return res.status(404).json({ error: 'Not found' });
@@ -38,7 +38,7 @@ export class TestimonialsController {
 
   async update(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       const item = await service.update(id, req.body);
       res.json(item);
@@ -49,7 +49,7 @@ export class TestimonialsController {
 
   async delete(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       await service.delete(id);
       res.status(204).send();

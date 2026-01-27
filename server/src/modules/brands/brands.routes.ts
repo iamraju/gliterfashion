@@ -24,7 +24,7 @@ router.get('/', authenticate, authorize(['SUPER_ADMIN', 'SELLER']), async (req: 
 // Get Brand by ID
 router.get('/:id', authenticate, authorize(['SUPER_ADMIN', 'SELLER']), async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const id = req.params.id as string;
     if (!id) return res.status(400).json({ message: 'Brand ID is required' });
 
     const brand = await brandsService.findById(id);
@@ -65,7 +65,7 @@ router.patch('/:id', authenticate, authorize(['SUPER_ADMIN', 'SELLER']), async (
      // @ts-ignore
      const { role, sellerProfile } = req.user;
      const sellerId = sellerProfile?.id;
-     const id = req.params.id;
+     const id = req.params.id as string;
      if (!id) return res.status(400).json({ message: 'Brand ID is required' });
 
      const brand = await brandsService.update(id, req.body, role, sellerId);
@@ -82,7 +82,7 @@ router.delete('/:id', authenticate, authorize(['SUPER_ADMIN', 'SELLER']), async 
       // @ts-ignore
      const { role, sellerProfile } = req.user;
      const sellerId = sellerProfile?.id;
-     const id = req.params.id;
+     const id = req.params.id as string;
      if (!id) return res.status(400).json({ message: 'Brand ID is required' });
 
      await brandsService.delete(id, role, sellerId);

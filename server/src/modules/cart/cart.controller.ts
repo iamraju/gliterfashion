@@ -45,7 +45,7 @@ export class CartController {
 
   async updateItem(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { quantity } = req.body;
       if (!id) {
         res.status(400).json({ error: 'Item ID is required' });
@@ -60,7 +60,7 @@ export class CartController {
 
   async removeItem(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) {
         res.status(400).json({ error: 'Item ID is required' });
         return;

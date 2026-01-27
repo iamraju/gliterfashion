@@ -20,7 +20,7 @@ export class ProductsController {
 
   async getProduct(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Product ID required');
       const product = await productsService.findById(id);
       res.json(formatProductWithImages(req, product));
@@ -133,7 +133,7 @@ export class ProductsController {
 
   async updateProduct(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Product ID required');
 
       const bodyData = { ...req.body };
@@ -224,7 +224,7 @@ export class ProductsController {
 
   async deleteProduct(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Product ID required');
       await productsService.delete(id);
       res.status(200).json({ message: 'Product deleted successfully' });

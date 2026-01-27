@@ -19,7 +19,7 @@ export class CategoriesController {
 
   async getCategory(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Category ID required');
       const category = await categoriesService.findById(id);
       res.json(formatCategoryWithImage(req, category));
@@ -63,7 +63,7 @@ export class CategoriesController {
 
   async updateCategory(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Category ID required');
       
       const bodyData = { ...req.body };

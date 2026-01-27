@@ -48,7 +48,7 @@ export class WishlistController {
   async removeFromWishlist(req: Request, res: Response) {
     try {
       const userId = (req as any).user.id;
-      const { productId } = req.params;
+      const productId = req.params.productId as string;
 
       if (!productId) {
         return res.status(400).json({ message: 'Product ID is required' });

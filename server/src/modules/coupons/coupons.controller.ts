@@ -24,7 +24,7 @@ export class CouponsController {
 
   async getCoupon(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Coupon ID required');
       const coupon = await couponsService.findById(id);
       res.json(coupon);
@@ -61,7 +61,7 @@ export class CouponsController {
 
   async updateCoupon(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Coupon ID required');
       const data = updateCouponSchema.parse(req.body);
       const coupon = await couponsService.update(id, data);
@@ -89,7 +89,7 @@ export class CouponsController {
 
   async deleteCoupon(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Coupon ID required');
       await couponsService.delete(id);
       res.status(200).json({ message: 'Coupon deleted successfully' });

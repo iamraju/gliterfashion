@@ -15,7 +15,7 @@ export class BannersController {
 
   async getBanner(req: Request, res: Response) {
     try {
-      const id = req.params.id;
+      const id = req.params.id as string;
       if (!id) {
         return res.status(400).json({ message: 'Banner ID is required' });
       }
@@ -37,7 +37,7 @@ export class BannersController {
 
   async updateBanner(req: Request, res: Response) {
     try {
-      const id = req.params.id;
+      const id = req.params.id as string;
       if (!id) {
         return res.status(400).json({ message: 'Banner ID is required' });
       }
@@ -50,7 +50,7 @@ export class BannersController {
 
   async deleteBanner(req: Request, res: Response) {
     try {
-      const id = req.params.id;
+      const id = req.params.id as string;
       if (!id) {
         return res.status(400).json({ message: 'Banner ID is required' });
       }

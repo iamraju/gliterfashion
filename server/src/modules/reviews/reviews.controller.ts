@@ -21,7 +21,7 @@ export class ReviewsController {
 
   async updateReviewStatus(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Review ID required');
       const { status } = req.body;
       

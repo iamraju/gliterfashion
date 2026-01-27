@@ -18,7 +18,7 @@ export class SettingsController {
 
   async getShippingMethod(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) return res.status(400).json({ message: 'ID is required' });
       const method = await settingsService.getShippingMethodById(id);
       if (!method) return res.status(404).json({ message: 'Shipping method not found' });
@@ -48,7 +48,7 @@ export class SettingsController {
 
   async updateShippingMethod(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) return res.status(400).json({ message: 'ID is required' });
       
       const bodyData = { ...req.body };
@@ -69,7 +69,7 @@ export class SettingsController {
 
   async deleteShippingMethod(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) return res.status(400).json({ message: 'ID is required' });
       await settingsService.deleteShippingMethod(id);
       res.json({ message: 'Shipping method deleted successfully' });
@@ -90,7 +90,7 @@ export class SettingsController {
 
   async getPaymentMethod(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) return res.status(400).json({ message: 'ID is required' });
       const method = await settingsService.getPaymentMethodById(id);
       if (!method) return res.status(404).json({ message: 'Payment method not found' });
@@ -120,7 +120,7 @@ export class SettingsController {
 
   async updatePaymentMethod(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) return res.status(400).json({ message: 'ID is required' });
 
       const bodyData = { ...req.body };
@@ -141,7 +141,7 @@ export class SettingsController {
 
   async deletePaymentMethod(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) return res.status(400).json({ message: 'ID is required' });
       await settingsService.deletePaymentMethod(id);
       res.json({ message: 'Payment method deleted successfully' });

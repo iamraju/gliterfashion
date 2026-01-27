@@ -42,7 +42,7 @@ export class ContactController {
 
   async deleteSubmission(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) {
           return res.status(400).json({ message: 'ID is required' });
       }

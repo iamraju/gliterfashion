@@ -83,7 +83,7 @@ export class OrdersController {
 
   async getOrder(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Order ID required');
       const user = (req as any).user;
       const sellerId = user.sellerProfile?.id;
@@ -118,7 +118,7 @@ export class OrdersController {
 
   async updateOrderStatus(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Order ID required');
       const { status } = req.body;
       

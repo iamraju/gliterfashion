@@ -17,7 +17,7 @@ export class AttributesController {
 
   async getAttribute(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Attribute ID required');
       const attribute = await attributesService.findById(id);
       res.json(attribute);
@@ -50,7 +50,7 @@ export class AttributesController {
 
   async updateAttribute(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Attribute ID required');
       const data = updateAttributeSchema.parse(req.body);
       const attribute = await attributesService.update(id, data);
@@ -74,7 +74,7 @@ export class AttributesController {
 
   async deleteAttribute(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Attribute ID required');
       await attributesService.delete(id);
       res.status(200).json({ message: 'Attribute deleted successfully' });

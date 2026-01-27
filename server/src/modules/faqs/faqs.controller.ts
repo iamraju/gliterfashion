@@ -17,7 +17,7 @@ export class FaqsController {
 
   async getById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       const faq = await faqsService.getById(id);
       if (!faq) return res.status(404).json({ error: 'Not found' });
@@ -38,7 +38,7 @@ export class FaqsController {
 
   async update(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       const faq = await faqsService.update(id, req.body);
       res.json(faq);
@@ -49,7 +49,7 @@ export class FaqsController {
 
   async delete(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       await faqsService.delete(id);
       res.status(204).send();

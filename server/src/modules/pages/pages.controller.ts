@@ -15,7 +15,7 @@ export class PagesController {
 
   async update(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID ID required');
       const page = await pagesService.updatePage(id, req.body);
       res.json(page);
@@ -39,7 +39,7 @@ export class PagesController {
 
   async getBySlug(req: Request, res: Response) {
     try {
-      const { slug } = req.params;
+      const slug = req.params.slug as string;
       if (!slug) throw new Error('Slug is required');
       const page = await pagesService.getPageBySlug(slug);
       res.json(page);
@@ -50,7 +50,7 @@ export class PagesController {
 
   async getById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       const page = await pagesService.getPageById(id);
       res.json(page);
@@ -61,7 +61,7 @@ export class PagesController {
 
   async delete(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('ID is required');
       await pagesService.deletePage(id);
       res.status(204).send();

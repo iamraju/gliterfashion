@@ -100,7 +100,7 @@ export class CategoriesController {
 
   async deleteCategory(req: Request, res: Response) {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       if (!id) throw new Error('Category ID required');
       await categoriesService.delete(id);
       res.status(200).json({ message: 'Category deleted successfully' });

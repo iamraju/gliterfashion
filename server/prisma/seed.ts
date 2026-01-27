@@ -3,6 +3,55 @@ import 'dotenv/config';
 import { Role, UserStatus, ProductStatus, CategoryGender } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import prisma from '../src/database/client';
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+
+// Helper to ensure image exists locally
+async function ensureImage(url: string, targetDir: string, filename: string): Promise<string> {
+  const uploadDir = path.join(__dirname, '../uploads');
+  const targetPath = path.join(uploadDir, targetDir);
+  const filePath = path.join(targetPath, filename);
+  const relativePath = path.join(targetDir, filename);
+
+  if (!fs.existsSync(targetPath)) {
+    fs.mkdirSync(targetPath, { recursive: true });
+  }
+
+  if (fs.existsSync(filePath)) {
+    // console.log(`Image already exists: ${relativePath}`);
+    return relativePath;
+  }
+
+  try {
+    console.log(`Downloading image: ${url} -> ${relativePath}`);
+    const response = await axios({
+      url,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    const writer = fs.createWriteStream(filePath);
+
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer);
+      let error: Error | null = null;
+      writer.on('error', (err) => {
+        error = err;
+        writer.close();
+        reject(err);
+      });
+      writer.on('close', () => {
+        if (!error) {
+          resolve(relativePath);
+        }
+      });
+    });
+  } catch (error) {
+    console.error(`Failed to download image from ${url}:`, error);
+    return ''; // Return empty string or handle error as needed
+  }
+}
 
 async function main() {
   console.log('Seeding database with comprehensive test data...');
@@ -302,6 +351,197 @@ async function main() {
   ]);
 
   console.log('Products and variants created');
+
+  // 6. Payment Methods
+  const paymentMethods = [
+    {
+      title: 'Credit Card',
+      charge: 0,
+      description: 'Pay securely with your credit card.',
+      imageUrl: 'https://placehold.co/400x300/png?text=Credit+Card',
+      filename: 'credit-card.png',
+      isActive: true,
+    },
+    {
+      title: 'PayPal',
+      charge: 0,
+      description: 'Pay with your PayPal account.',
+      imageUrl: 'https://placehold.co/400x300/png?text=PayPal',
+      filename: 'paypal.png',
+      isActive: true,
+    },
+    {
+      title: 'Cash on Delivery',
+      charge: 0,
+      description: 'Pay with cash upon delivery.',
+      imageUrl: 'https://placehold.co/400x300/png?text=COD',
+      filename: 'cod.png',
+      isActive: true,
+    },
+  ];
+
+  for (const method of paymentMethods) {
+    const relativePath = await ensureImage(method.imageUrl, 'payment-methods', method.filename);
+    
+    // Check if distinct by title? Assuming title is unique for this seed purpose.
+    // There is no unique slug on PaymentMethod in schema, but we can search by ID if we had it, or just findFirst.
+    // Since we don't have unique constraint on title in schema (id is uuid), upsert by id is hard if we don't hardcode UUIDs.
+    // Best effort: findFirst, if found update, else create.
+    const existing = await prisma.paymentMethod.findFirst({ where: { title: method.title } });
+    
+    if (existing) {
+      await prisma.paymentMethod.update({
+        where: { id: existing.id },
+        data: {
+          charge: method.charge,
+          description: method.description,
+          imageUrl: relativePath,
+          isActive: method.isActive,
+        }
+      });
+    } else {
+      await prisma.paymentMethod.create({
+        data: {
+          title: method.title,
+          charge: method.charge,
+          description: method.description,
+          imageUrl: relativePath,
+          isActive: method.isActive,
+        }
+      });
+    }
+  }
+  console.log('Payment methods created/updated');
+
+  // 7. Shipping Methods
+  const shippingMethods = [
+    {
+      title: 'Standard Delivery',
+      charge: 5.00,
+      deliveryTimeDays: 5,
+      description: 'Delivery within 5-7 business days.',
+      isActive: true,
+    },
+    {
+      title: 'Express Delivery',
+      charge: 15.00,
+      deliveryTimeDays: 2,
+      description: 'Delivery within 1-2 business days.',
+      isActive: true,
+    },
+    {
+      title: 'Local Pickup',
+      charge: 0,
+      deliveryTimeDays: 1,
+      description: 'Pick up from our store.',
+      isActive: true,
+    },
+  ];
+
+  for (const method of shippingMethods) {
+    const existing = await prisma.shippingMethod.findFirst({ where: { title: method.title } });
+    if (existing) {
+      await prisma.shippingMethod.update({
+        where: { id: existing.id },
+        data: {
+          charge: method.charge,
+          deliveryTimeDays: method.deliveryTimeDays,
+          description: method.description,
+          isActive: method.isActive,
+        }
+      });
+    } else {
+      await prisma.shippingMethod.create({
+        data: method,
+      });
+    }
+  }
+  console.log('Shipping methods created/updated');
+
+  // 8. Settings
+  const settings = [
+    { key: 'site_name', value: 'Glitter Fashion', group: 'GENERAL', label: 'Site Name' },
+    { key: 'site_description', value: 'Your one-stop shop for trendy fashion.', group: 'GENERAL', label: 'Site Description' },
+    { key: 'contact_email', value: 'support@glitter.com', group: 'GENERAL', label: 'Contact Email' },
+    { key: 'phone', value: '+1 (555) 123-4567', group: 'GENERAL', label: 'Phone Number' },
+    { key: 'currency', value: 'USD', group: 'GENERAL', label: 'Currency' },
+    { key: 'facebook_url', value: 'https://facebook.com/glitter', group: 'SOCIAL', label: 'Facebook URL' },
+    { key: 'instagram_url', value: 'https://instagram.com/glitter', group: 'SOCIAL', label: 'Instagram URL' },
+    { key: 'twitter_url', value: 'https://twitter.com/glitter', group: 'SOCIAL', label: 'Twitter URL' },
+  ];
+
+  for (const setting of settings) {
+    await prisma.setting.upsert({
+      where: { key: setting.key },
+      update: { value: setting.value },
+      create: setting,
+    });
+  }
+  console.log('Settings created/updated');
+
+  // 9. Testimonials
+  const testimonials = [
+    {
+      name: 'Alice Johnson',
+      role: 'Fashion Blogger',
+      content: 'I absolutely love the quality of the dresses! Highly recommended.',
+      rating: 5,
+      imageUrl: 'https://placehold.co/100x100/png?text=AJ',
+      filename: 'alice.png',
+      isActive: true,
+    },
+    {
+      name: 'Michael Smith',
+      role: 'Verified Customer',
+      content: 'Great service and fast shipping. The jeans fit perfectly.',
+      rating: 4,
+      imageUrl: 'https://placehold.co/100x100/png?text=MS',
+      filename: 'michael.png',
+      isActive: true,
+    },
+    {
+      name: 'Sarah Lee',
+      role: 'Designer',
+      content: 'The accessories are unique and stylish. Will buy again!',
+      rating: 5,
+      imageUrl: 'https://placehold.co/100x100/png?text=SL',
+      filename: 'sarah.png',
+      isActive: true,
+    },
+  ];
+
+  for (const testimony of testimonials) {
+    const relativePath = await ensureImage(testimony.imageUrl, 'testimonials', testimony.filename);
+    
+    // Testimonial doesn't have unique slug. ID is uuid.
+    // Use findFirst with name as a heuristic for seed idempotency.
+    const existing = await prisma.testimonial.findFirst({ where: { name: testimony.name } });
+
+    if (existing) {
+       await prisma.testimonial.update({
+         where: { id: existing.id },
+         data: {
+           role: testimony.role,
+           content: testimony.content,
+           rating: testimony.rating,
+           imageUrl: relativePath,
+           isActive: testimony.isActive,
+         }
+       });
+    } else {
+      await prisma.testimonial.create({
+        data: {
+          name: testimony.name,
+          role: testimony.role,
+          content: testimony.content,
+          rating: testimony.rating,
+          imageUrl: relativePath,
+          isActive: testimony.isActive,
+        }
+      });
+    }
+  }
+  console.log('Testimonials created/updated');
   console.log('Seeding completed successfully!');
 }
 

@@ -79,6 +79,16 @@ import contactRoutes from './modules/contact/contact.routes';
 app.use('/api/store/contact', contactRoutes); // Public POST
 app.use('/api/backoffice/contact', contactRoutes); // Admin GET/DELETE
 
+// API root endpoint
+app.get("/api/healthcheck", (req, res) => {
+  res.json({ message: "E-commerce Backend API is running", version: "1.0" });
+});
+
+// API root endpoint
+app.get("/api", (req, res) => {
+  res.json({ message: "Welcome to E-commerce Backend API", version: "1.0" });
+});
+
 // Basic Route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to E-commerce Backend API" });

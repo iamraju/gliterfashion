@@ -42,7 +42,7 @@ import ContactSubmissions from './pages/dashboard/ContactSubmissions';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename='/backoffice'>
         <Routes>
           {/* Auth Routes */}
           <Route path="/auth">

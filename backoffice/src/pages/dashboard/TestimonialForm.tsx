@@ -12,7 +12,7 @@ const TestimonialForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const isEditing = !!id;
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue } = useForm();
 
     useEffect(() => {
         if (id) {

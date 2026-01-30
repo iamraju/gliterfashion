@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { ArrowLeft } from 'lucide-react';
@@ -12,7 +12,7 @@ const FaqForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const isEditing = !!id;
-    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
 
     useEffect(() => {
         if (id) {

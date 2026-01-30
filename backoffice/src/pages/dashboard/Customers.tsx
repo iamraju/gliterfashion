@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   User as UserIcon, 
-  Mail, 
-  ExternalLink,
+ 
+
   ChevronRight,
   Filter
 } from 'lucide-react';

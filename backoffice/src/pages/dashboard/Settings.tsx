@@ -24,14 +24,14 @@ const Settings: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   
   // Main form for editing values
-  const { register, handleSubmit, setValue, reset } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   
   // "Add New" form
   const { 
     register: registerNew, 
     handleSubmit: handleSubmitNew, 
     reset: resetNew,
-    formState: { errors: newErrors } 
+    // formState: { errors } 
   } = useForm({ mode: 'onChange' });
 
   useEffect(() => {

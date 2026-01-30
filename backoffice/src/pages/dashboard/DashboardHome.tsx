@@ -1,13 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { 
   ShoppingBag, 
   Users, 
   DollarSign, 
-  TrendingUp, 
-  Package, 
-  Clock 
+  TrendingUp 
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -164,7 +162,7 @@ const DashboardHome = () => {
                                     dataKey="sales"
                                     nameKey="month"
                                 >
-                                    {(stats?.monthlySales || []).map((entry, index) => (
+                                    {(stats?.monthlySales || []).map((_entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>

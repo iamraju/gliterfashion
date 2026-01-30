@@ -53,7 +53,7 @@ const PageForm: React.FC = () => {
     const [editorData, setEditorData] = useState('');
     const isEditing = !!id;
 
-    const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
     
     // Watch title to auto-generate slug
     const titleValue = watch('title');
@@ -160,7 +160,7 @@ const PageForm: React.FC = () => {
                                             'undo', 'redo'
                                         ]
                                     }}
-                                    onChange={(event, editor) => {
+                                    onChange={(_event, editor) => {
                                         const data = editor.getData();
                                         setEditorData(data);
                                     }}

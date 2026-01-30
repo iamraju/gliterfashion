@@ -1,4 +1,4 @@
-import { LayoutGrid, Search, Globe, Shield, Truck, CreditCard } from 'lucide-react';
+import { LayoutGrid, Search, Globe, Shield, CreditCard } from 'lucide-react';
 
 export const SETTINGS_GROUPS = [
   { id: 'GENERAL', label: 'General', icon: LayoutGrid, description: 'Basic site configuration' },

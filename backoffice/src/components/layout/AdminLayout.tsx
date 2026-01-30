@@ -32,7 +32,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const Sidebar = ({ isOpen, toggle, logout, user }: { isOpen: boolean; toggle: () => void; logout: () => void; user: any }) => {
+const Sidebar = ({ isOpen, toggle, logout }: { isOpen: boolean; toggle: () => void; logout: () => void }) => {
   const location = useLocation();
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
 
@@ -324,7 +324,7 @@ const AdminLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <div className="print:hidden">
-        <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} logout={logout} user={user} />
+        <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} logout={logout} />
       </div>
       
       <main className="flex-1 lg:ml-72 flex flex-col min-w-0 print:ml-0">

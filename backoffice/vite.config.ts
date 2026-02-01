@@ -1,15 +1,26 @@
-import { defineConfig, loadEnv } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
-  return {
-    plugins: [react(), tailwindcss()],
-    base: '/backoffice/',
-    server: {
-      port: parseInt(env.VITE_PORT) || 5174,
-    },
-  };
-});
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  base: '/backoffice/',  // IMPORTANT for subdirectory
+  build: {
+    outDir: 'dist',
+    sourcemap: false,  // Disable sourcemaps for production
+    minify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom']
+        }
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  }
+})

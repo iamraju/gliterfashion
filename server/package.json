@@ -8,8 +8,7 @@
     "start": "node dist/server.js",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
-    "seed:countries": "ts-node prisma/seed-countries.ts",
-    "seed:methods": "ts-node prisma/seed-methods.ts",
+    "seed": "ts-node prisma/seed-settings.ts && ts-node prisma/seed-methods.ts && ts-node prisma/seed-countries.ts && ts-node prisma/seed-faqs-testimonials.ts && ts-node prisma/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -53,7 +52,7 @@
     "typescript": "^5.9.3"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "npm run seed"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
     ],
+    base: '/',
     server: {
       port: parseInt(env.VITE_PORT) || 5173,
       proxy: {

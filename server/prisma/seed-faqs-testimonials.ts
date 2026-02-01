@@ -1,9 +1,57 @@
 
 import 'dotenv/config';
 import prisma from '../src/database/client';
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+
+// Helper to ensure image exists locally
+async function ensureImage(url: string, targetDir: string, filename: string): Promise<string> {
+  const uploadDir = path.join(__dirname, '../uploads');
+  const targetPath = path.join(uploadDir, targetDir);
+  const filePath = path.join(targetPath, filename);
+  const relativePath = path.join(targetDir, filename);
+
+  if (!fs.existsSync(targetPath)) {
+    fs.mkdirSync(targetPath, { recursive: true });
+  }
+
+  if (fs.existsSync(filePath)) {
+    return relativePath;
+  }
+
+  try {
+    console.log(`Downloading image: ${url} -> ${relativePath}`);
+    const response = await axios({
+      url,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    const writer = fs.createWriteStream(filePath);
+
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer);
+      let error: Error | null = null;
+      writer.on('error', (err: any) => {
+        error = err;
+        writer.close();
+        reject(err);
+      });
+      writer.on('close', () => {
+        if (!error) {
+          resolve(relativePath);
+        }
+      });
+    });
+  } catch (error) {
+    console.error(`Failed to download image from ${url}:`, error);
+    return ''; // Return empty string or handle error as needed
+  }
+}
 
 async function main() {
-  console.log('Seeding FAQs and Testimonials...');
+  console.log('🌱 Seeding FAQs and Testimonials...');
 
   // FAQs
   const faqs = [
@@ -46,32 +94,46 @@ async function main() {
   ];
 
   for (const faq of faqs) {
-    await prisma.faq.create({ data: faq });
+     const existing = await prisma.faq.findFirst({ where: { question: faq.question } });
+     if (existing) {
+         await prisma.faq.update({
+             where: { id: existing.id },
+             data: faq
+         });
+     } else {
+         await prisma.faq.create({ data: faq });
+     }
   }
 
-  console.log(`Created ${faqs.length} FAQs`);
+  console.log(`✅ Processed ${faqs.length} FAQs`);
 
   // Testimonials
   const testimonials = [
     {
-      name: 'Sarah Johnson',
+      name: 'Alice Johnson',
       role: 'Fashion Blogger',
-      content: 'I absolutely love the quality of the clothes! The fabrics are premium and the fit is perfect. Highly updated my wardrobe with Glitter Fashion.',
+      content: 'I absolutely love the quality of the dresses! Highly recommended.',
       rating: 5,
+      imageUrl: 'https://placehold.co/100x100/png?text=AJ',
+      filename: 'alice.png',
       isActive: true,
     },
     {
-      name: 'Michael Chen',
-      role: 'Verified Buyer',
-      content: 'Great shipping speed and excellent customer service. Had IT issue with size and they swapped it out immediately. Will buy again.',
-      rating: 5,
-      isActive: true,
-    },
-    {
-      name: 'Emily Davis',
-      role: 'Regular Customer',
-      content: 'The summer collection is to die for! I bought three dresses and they are all stunning. Can\'t wait for the winter release.',
+      name: 'Michael Smith',
+      role: 'Verified Customer',
+      content: 'Great service and fast shipping. The jeans fit perfectly.',
       rating: 4,
+      imageUrl: 'https://placehold.co/100x100/png?text=MS',
+      filename: 'michael.png',
+      isActive: true,
+    },
+    {
+      name: 'Sarah Lee',
+      role: 'Designer',
+      content: 'The accessories are unique and stylish. Will buy again!',
+      rating: 5,
+      imageUrl: 'https://placehold.co/100x100/png?text=SL',
+      filename: 'sarah.png',
       isActive: true,
     },
     {
@@ -79,6 +141,8 @@ async function main() {
       role: 'Designer',
       content: 'As a designer myself, I appreciate the attention to detail in the stitching and finishing. Very impressed with the craftsmanship.',
       rating: 5,
+      imageUrl: 'https://placehold.co/100x100/png?text=PS',
+      filename: 'priya.png',
       isActive: true,
     },
     {
@@ -86,15 +150,46 @@ async function main() {
       role: 'Business Professional',
       content: 'Formal wear selection is top notch. The suits fit like they were custom made. Highly recommended for office wear.',
       rating: 5,
+      imageUrl: 'https://placehold.co/100x100/png?text=DW',
+      filename: 'david.png',
       isActive: true,
     },
   ];
 
   for (const t of testimonials) {
-    await prisma.testimonial.create({ data: t });
+    let relativePath = null;
+    if (t.imageUrl && t.filename) {
+        relativePath = await ensureImage(t.imageUrl, 'testimonials', t.filename);
+    }
+
+    const existing = await prisma.testimonial.findFirst({ where: { name: t.name } });
+
+    if (existing) {
+       await prisma.testimonial.update({
+         where: { id: existing.id },
+         data: {
+           role: t.role,
+           content: t.content,
+           rating: t.rating,
+           imageUrl: relativePath || existing.imageUrl,
+           isActive: t.isActive,
+         }
+       });
+    } else {
+      await prisma.testimonial.create({
+        data: {
+          name: t.name,
+          role: t.role,
+          content: t.content,
+          rating: t.rating,
+          imageUrl: relativePath,
+          isActive: t.isActive,
+        }
+      });
+    }
   }
 
-  console.log(`Created ${testimonials.length} testimonials`);
+  console.log(`✅ Processed ${testimonials.length} testimonials`);
 }
 
 main()

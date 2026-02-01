@@ -41,7 +41,7 @@ function App() {
   }, [initCart, initAuth]);
 
   return (
-    <Router basename='/'>
+    <Router>
       <Toaster position="bottom-right" />
       <Helmet>
         <title>{appName} | Premium Fashion Store</title>

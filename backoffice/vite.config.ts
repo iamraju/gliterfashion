@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ command }) => {
   return {
     plugins: [react(), tailwindcss()],
     base: command === 'build' ? '/backoffice/' : '/',

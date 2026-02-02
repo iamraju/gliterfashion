@@ -182,7 +182,14 @@ const ProductsPage: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
                         {getPrimaryImage(product) ? (
-                          <img src={getPrimaryImage(product)} alt={product.name} className="w-full h-full object-cover" />
+                          <img 
+                            src={getPrimaryImage(product)?.startsWith('http') 
+                              ? getPrimaryImage(product) 
+                              : `${import.meta.env.VITE_API_URL}/uploads/${getPrimaryImage(product)}`
+                            } 
+                            alt={product.name} 
+                            className="w-full h-full object-cover" 
+                          />
                         ) : (
                           <ImageIcon className="w-6 h-6 text-gray-300" />
                         )}

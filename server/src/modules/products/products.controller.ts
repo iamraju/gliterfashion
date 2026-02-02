@@ -190,10 +190,22 @@ export class ProductsController {
       }
       
       // Ensure we don't save full URLs to the database
-      images = images.map((img: any) => ({
-          ...img,
-          imageUrl: img.imageUrl ? img.imageUrl.split('/').pop() : img.imageUrl
-      }));
+      images = images.map((img: any) => {
+          let url = img.imageUrl;
+          // If it contains /uploads/, strip everything before it
+          if (url && url.includes('/uploads/')) {
+              url = url.split('/uploads/')[1];
+          } 
+          // Note: If it's a relative path like 'products/foo.jpg' sent by frontend, 
+          // it won't have /uploads/ (unless frontend sends /uploads/products/foo.jpg).
+          // Our frontend fix sends 'products/foo.jpg'.
+          // So we simply preserve it.
+          // Prior logic used split('/').pop() which caused the bug.
+          return {
+              ...img,
+              imageUrl: url
+          };
+      });
       
       bodyData.images = images;
 

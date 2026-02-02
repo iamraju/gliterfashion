@@ -434,11 +434,27 @@ const ProductForm: React.FC = () => {
       formData.append('imageMetadata', JSON.stringify(normalizedNewMeta));
 
       // Append EXISTING images with their metadata
-      const imagesPayload = existingImages.map(img => ({
-          imageUrl: img.url.split('/').pop(), // filename
-          isPrimary: img.isPrimary,
-          attributeValueId: img.attributeValueId
-      }));
+      const imagesPayload = existingImages.map(img => {
+          let filename = img.url;
+          if (img.url.includes('/uploads/')) {
+              filename = img.url.split('/uploads/')[1];
+          } else if (img.url.startsWith('http')) {
+               // Fallback for external URLs or other structures: try to keep the last segment or verify
+               // For now, if it's http but no uploads, might be external like unsplash.
+               // If it's unsplash, we probably downloaded it to seeds? 
+               // Seeder downloads to `products/name.jpg` and stores that keys. 
+               // The API returns full URL. 
+               // So it will have /uploads/. 
+               // If it doesn't have /uploads/, it might be raw external URL?
+               // If so, we just pass it as is?
+               filename = img.url;
+          }
+          return {
+              imageUrl: filename, 
+              isPrimary: img.isPrimary,
+              attributeValueId: img.attributeValueId
+          };
+      });
       formData.append('existingImages', JSON.stringify(imagesPayload));
 
        if (isEditMode && id) {

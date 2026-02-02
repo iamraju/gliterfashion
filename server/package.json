@@ -12,6 +12,7 @@
     "seed:products": "ts-node prisma/seed-products.ts",
     "seed:pages": "ts-node prisma/seed-pages.ts",
     "seed:banners": "ts-node prisma/seed-banners.ts",
+    "seed:brands": "ts-node prisma/seed-brands.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

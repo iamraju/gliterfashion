@@ -54,14 +54,12 @@ export const Contact = () => {
     phone: '',
     message: ''
   });
+  const [errors, setErrors] = React.useState<{ [key: string]: string }>({});
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+  const [generalError, setGeneralError] = React.useState<string | null>(null);
 
   const { submitContactForm, getPublicSettings } = storeApi;
-  // Using require to avoid import issues if not exported yet, but ideally should be import.
-  // Actually, import is better since I just updated the file.
-  // Assuming implicit import available or I will fix if needed. 
-  // Wait, I can't inject imports easily with replace. I'll use the existing import if possible or just use inline logic if I could...
-  // But I need to fetch settings. 
-  
+
   React.useEffect(() => {
     const fetchSettings = async () => {
         try {
@@ -79,15 +77,37 @@ export const Contact = () => {
       return setting ? setting.value : fallback;
   };
 
+  const validateForm = () => {
+      const newErrors: { [key: string]: string } = {};
+      if (!formData.fullName.trim()) newErrors.fullName = 'Full Name is required';
+      if (!formData.email.trim()) {
+          newErrors.email = 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+          newErrors.email = 'Email is invalid';
+      }
+      // Phone is optional, but if provided could validate? Let's keep it simple optional.
+      // Message is optional? Usually required for contact form. Let's make it required.
+       if (!formData.message.trim()) newErrors.message = 'Message is required';
+
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSuccessMessage(null);
+    setGeneralError(null);
+    
+    if (!validateForm()) return;
+
     setLoading(true);
     try {
       await submitContactForm(formData);
-      alert('Message sent successfully!');
+      setSuccessMessage('Thank you! Your message has been sent successfully. We will get back to you shortly.');
       setFormData({ fullName: '', email: '', phone: '', message: '' });
+      setErrors({});
     } catch (error) {
-      alert('Failed to send message. Please try again.');
+      setGeneralError('Failed to send message. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -95,6 +115,10 @@ export const Contact = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error for this field
+    if (errors[e.target.name]) {
+        setErrors({ ...errors, [e.target.name]: '' });
+    }
   };
 
   return (
@@ -108,76 +132,93 @@ export const Contact = () => {
          <div className="space-y-4">
            <div>
              <span className="block font-bold">Email</span>
-             <a href={`mailto:${getSetting('supportEmail', 'support@glitterfashion.com')}`} className="text-accent hover:underline">
-                {getSetting('supportEmail', 'support@glitterfashion.com')}
+             <a href={`mailto:${getSetting('contactEmail', 'support@glitterfashion.com')}`} className="text-accent hover:underline">
+                {getSetting('contactEmail', 'support@glitterfashion.com')}
              </a>
            </div>
            <div>
              <span className="block font-bold">Phone</span>
-             <a href={`tel:${getSetting('telephone', '+1 (555) 123-4567')}`} className="text-accent hover:underline">
-                {getSetting('telephone', '+1 (555) 123-4567')}
+             <a href={`tel:${getSetting('contactPhone', '+977 9812345678')}`} className="text-accent hover:underline">
+                {getSetting('contactPhone', '+977 9812345678')}
              </a>
            </div>
            <div>
              <span className="block font-bold">Address</span>
-             <p className="text-gray-600">{getSetting('address', '123 Fashion Ave, Design District, NY 10001')}</p>
+             <p className="text-gray-600">{getSetting('contactAddress', '123 Fashion Ave, Kathmandu, Nepal')}</p>
            </div>
          </div>
        </div>
-       <form className="space-y-4" onSubmit={handleSubmit}>
-         <div>
-           <label className="block text-sm font-bold mb-1">Full Name <span className="text-red-500">*</span></label>
-           <input 
-             type="text" 
-             name="fullName"
-             required
-             value={formData.fullName}
-             onChange={handleChange}
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
-             placeholder="Your Name" 
-           />
-         </div>
-         <div>
-           <label className="block text-sm font-bold mb-1">Email <span className="text-red-500">*</span></label>
-           <input 
-             type="email" 
-             name="email"
-             required
-             value={formData.email}
-             onChange={handleChange}
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
-             placeholder="Your Email" 
-            />
-         </div>
-         <div>
-           <label className="block text-sm font-bold mb-1">Phone</label>
-           <input 
-             type="tel" 
-             name="phone"
-             value={formData.phone}
-             onChange={handleChange}
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
-             placeholder="Your Phone (Optional)" 
-           />
-         </div>
-         <div>
-           <label className="block text-sm font-bold mb-1">Message</label>
-           <textarea 
-             name="message"
-             value={formData.message}
-             onChange={handleChange}
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none h-32" 
-             placeholder="How can we help?"
-           ></textarea>
-         </div>
-         <button 
-           type="submit"
-           disabled={loading}
-           className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
-         >
-           {loading ? 'Sending...' : 'Send Message'}
-         </button>
-       </form>
+       <div className="space-y-4">
+         {successMessage && (
+             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-start">
+                 <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                 </svg>
+                 <span>{successMessage}</span>
+             </div>
+         )}
+         {generalError && (
+             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                 {generalError}
+             </div>
+         )}
+         
+         <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+           <div>
+             <label className="block text-sm font-bold mb-1">Full Name <span className="text-red-500">*</span></label>
+             <input 
+               type="text" 
+               name="fullName"
+               value={formData.fullName}
+               onChange={handleChange}
+               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
+               placeholder="Your Name" 
+             />
+             {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
+           </div>
+           <div>
+             <label className="block text-sm font-bold mb-1">Email <span className="text-red-500">*</span></label>
+             <input 
+               type="email" 
+               name="email"
+               value={formData.email}
+               onChange={handleChange}
+               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+               placeholder="Your Email" 
+              />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+           </div>
+           <div>
+             <label className="block text-sm font-bold mb-1">Phone</label>
+             <input 
+               type="tel" 
+               name="phone"
+               value={formData.phone}
+               onChange={handleChange}
+               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none" 
+               placeholder="Your Phone (Optional)" 
+             />
+           </div>
+           <div>
+             <label className="block text-sm font-bold mb-1">Message <span className="text-red-500">*</span></label>
+             <textarea 
+               name="message"
+               value={formData.message}
+               onChange={handleChange}
+               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none h-32 ${errors.message ? 'border-red-500' : 'border-gray-300'}`} 
+               placeholder="How can we help?"
+             ></textarea>
+             {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
+           </div>
+           <button 
+             type="submit"
+             disabled={loading}
+             className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
+           >
+             {loading ? 'Sending...' : 'Send Message'}
+           </button>
+         </form>
+       </div>
      </div>
   </ContentPage>
   );

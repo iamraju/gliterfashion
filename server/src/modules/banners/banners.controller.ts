@@ -7,7 +7,16 @@ export class BannersController {
   async getAllBanners(req: Request, res: Response) {
     try {
       const banners = await bannersService.findAll();
-      res.json(banners);
+      
+      const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+      const bannersWithUrl = banners.map(banner => ({
+        ...banner,
+        imageUrl: banner.imageUrl && !banner.imageUrl.startsWith('http') 
+          ? `${baseUrl}${banner.imageUrl}` 
+          : banner.imageUrl
+      }));
+
+      res.json(bannersWithUrl);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -20,6 +29,12 @@ export class BannersController {
         return res.status(400).json({ message: 'Banner ID is required' });
       }
       const banner = await bannersService.findById(id);
+      
+      if (banner && banner.imageUrl && !banner.imageUrl.startsWith('http')) {
+        const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+        banner.imageUrl = `${baseUrl}${banner.imageUrl}`;
+      }
+
       res.json(banner);
     } catch (error: any) {
       res.status(404).json({ message: error.message });
@@ -29,6 +44,12 @@ export class BannersController {
   async createBanner(req: Request, res: Response) {
     try {
       const banner = await bannersService.create(req.body);
+      
+       if (banner && banner.imageUrl && !banner.imageUrl.startsWith('http')) {
+        const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+        banner.imageUrl = `${baseUrl}${banner.imageUrl}`;
+      }
+      
       res.status(201).json(banner);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -42,6 +63,12 @@ export class BannersController {
         return res.status(400).json({ message: 'Banner ID is required' });
       }
       const banner = await bannersService.update(id, req.body);
+      
+      if (banner && banner.imageUrl && !banner.imageUrl.startsWith('http')) {
+        const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+        banner.imageUrl = `${baseUrl}${banner.imageUrl}`;
+      }
+      
       res.json(banner);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

@@ -40,7 +40,11 @@ const BannerForm = () => {
                 sortOrder: data.sortOrder || 0
             });
             if (data.imageUrl) {
-                setPreviewUrl(data.imageUrl);
+                if (data.imageUrl.startsWith('http')) {
+                   setPreviewUrl(data.imageUrl);
+                } else {
+                   setPreviewUrl(`${import.meta.env.VITE_API_URL}/uploads/${data.imageUrl}`);
+                }
             }
         })
         .catch(() => toast.error('Failed to load banner'))

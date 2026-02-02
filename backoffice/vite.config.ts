@@ -3,24 +3,29 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  base: '/backoffice/',  // IMPORTANT for subdirectory
-  build: {
-    outDir: 'dist',
-    sourcemap: false,  // Disable sourcemaps for production
-    minify: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom']
+export default defineConfig(({ command, mode }) => {
+  return {
+    plugins: [react(), tailwindcss()],
+    base: command === 'build' ? '/backoffice/' : '/',
+    server: {
+      port: 5173,
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: false,  // Disable sourcemaps for production
+      minify: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom']
+          }
         }
       }
-    }
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src')
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src')
+      }
     }
   }
 })

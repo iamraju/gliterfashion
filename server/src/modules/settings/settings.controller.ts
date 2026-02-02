@@ -10,7 +10,16 @@ export class SettingsController {
   async getAllShippingMethods(req: Request, res: Response) {
     try {
       const methods = await settingsService.getAllShippingMethods();
-      res.json(methods);
+      
+      const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+      const methodsWithUrl = methods.map(method => ({
+        ...method,
+        imageUrl: method.imageUrl && !method.imageUrl.startsWith('http') 
+          ? `${baseUrl}${method.imageUrl}` 
+          : method.imageUrl
+      }));
+
+      res.json(methodsWithUrl);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch shipping methods' });
     }
@@ -22,6 +31,12 @@ export class SettingsController {
       if (!id) return res.status(400).json({ message: 'ID is required' });
       const method = await settingsService.getShippingMethodById(id);
       if (!method) return res.status(404).json({ message: 'Shipping method not found' });
+
+      if (method.imageUrl && !method.imageUrl.startsWith('http')) {
+        const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+        method.imageUrl = `${baseUrl}${method.imageUrl}`;
+      }
+
       res.json(method);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch shipping method' });
@@ -82,7 +97,16 @@ export class SettingsController {
   async getAllPaymentMethods(req: Request, res: Response) {
     try {
       const methods = await settingsService.getAllPaymentMethods();
-      res.json(methods);
+      
+      const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+      const methodsWithUrl = methods.map(method => ({
+        ...method,
+        imageUrl: method.imageUrl && !method.imageUrl.startsWith('http') 
+          ? `${baseUrl}${method.imageUrl}` 
+          : method.imageUrl
+      }));
+
+      res.json(methodsWithUrl);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch payment methods' });
     }
@@ -94,6 +118,12 @@ export class SettingsController {
       if (!id) return res.status(400).json({ message: 'ID is required' });
       const method = await settingsService.getPaymentMethodById(id);
       if (!method) return res.status(404).json({ message: 'Payment method not found' });
+
+      if (method.imageUrl && !method.imageUrl.startsWith('http')) {
+        const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+        method.imageUrl = `${baseUrl}${method.imageUrl}`;
+      }
+
       res.json(method);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch payment method' });

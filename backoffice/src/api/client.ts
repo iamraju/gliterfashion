@@ -38,8 +38,11 @@ apiClient.interceptors.response.use(
       ));
 
     if (isTokenError) {
-      localStorage.removeItem('auth_token');
-      window.location.href = '/auth/login';
+      // Don't redirect if we're already trying to login
+      if (!error.config.url?.includes('/auth/login')) {
+        localStorage.removeItem('auth_token');
+        window.location.href = '/auth/login';
+      }
     }
     return Promise.reject(error);
   }

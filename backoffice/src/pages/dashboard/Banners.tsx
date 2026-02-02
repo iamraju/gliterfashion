@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { bannersApi } from '../../api/banners';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 const Banners = () => {
   const [banners, setBanners] = useState<any[]>([]);
@@ -24,14 +25,31 @@ const Banners = () => {
     fetchBanners();
   }, []);
 
+
+
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this banner?')) return;
-    try {
-      await bannersApi.delete(id);
-      toast.success('Banner deleted');
-      fetchBanners();
-    } catch (error) {
-      toast.error('Failed to delete banner');
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#000000',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await bannersApi.delete(id);
+        Swal.fire(
+          'Deleted!',
+          'Your banner has been deleted.',
+          'success'
+        );
+        fetchBanners();
+      } catch (error) {
+        toast.error('Failed to delete banner');
+      }
     }
   };
 
@@ -77,7 +95,11 @@ const Banners = () => {
                         <tr key={banner.id} className="hover:bg-gray-50/50 transition-colors">
                             <td className="p-4">
                                 <div className="w-24 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                  <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
+                                  <img 
+                                    src={banner.imageUrl?.startsWith('http') ? banner.imageUrl : `${import.meta.env.VITE_API_URL}/uploads/${banner.imageUrl}`} 
+                                    alt={banner.title} 
+                                    className="w-full h-full object-cover" 
+                                  />
                                 </div>
                             </td>
                             <td className="p-4">

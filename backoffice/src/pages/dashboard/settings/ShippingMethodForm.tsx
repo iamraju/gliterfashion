@@ -63,7 +63,11 @@ const ShippingMethodForm = () => {
         description: data.description || ''
       });
       if (data.imageUrl) {
-        setPreviewUrl(`${import.meta.env.VITE_API_URL}/uploads/${data.imageUrl}`);
+        if (data.imageUrl.startsWith('http')) {
+           setPreviewUrl(data.imageUrl);
+        } else {
+           setPreviewUrl(`${import.meta.env.VITE_API_URL}/uploads/${data.imageUrl}`);
+        }
       }
     } catch (error) {
       console.error('Failed to load shipping method');

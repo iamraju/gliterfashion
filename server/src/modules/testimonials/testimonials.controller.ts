@@ -9,7 +9,16 @@ export class TestimonialsController {
     try {
       const active = req.query.active === 'true';
       const items = await service.getAll(active);
-      res.json(items);
+      
+      const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+      const itemsWithUrl = items.map(item => ({
+        ...item,
+        imageUrl: item.imageUrl && !item.imageUrl.startsWith('http') 
+          ? `${baseUrl}${item.imageUrl}` 
+          : item.imageUrl
+      }));
+
+      res.json(itemsWithUrl);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
@@ -21,6 +30,12 @@ export class TestimonialsController {
       if (!id) throw new Error('ID is required');
       const item = await service.getById(id);
       if (!item) return res.status(404).json({ error: 'Not found' });
+
+      if (item.imageUrl && !item.imageUrl.startsWith('http')) {
+        const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
+        item.imageUrl = `${baseUrl}${item.imageUrl}`;
+      }
+
       res.json(item);
     } catch (e: any) {
       res.status(500).json({ error: e.message });

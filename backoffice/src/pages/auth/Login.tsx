@@ -48,7 +48,11 @@ const Login: React.FC = () => {
       await login(data);
       navigate('/');
     } catch (err: any) {
-      setApiError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      if (err.response?.status === 404 || err.response?.status === 401) {
+        setApiError('Invalid email or password');
+      } else {
+        setApiError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      }
     } finally {
       setIsLoading(false);
     }
